@@ -1,7 +1,7 @@
 <style>
 	
 </style>
-<div class="ua-demo-button">
+<div class="qt-demo-quicktalbe" ng-controller="quickTableCtrl as qtVm">
 	<header>
 		<coding lan="markup">
 &lt;quick-table>default&lt;/quick-table>
@@ -9,6 +9,6 @@
 		</coding>
 	</header>
 	<div class="clearfix">
-		
+		<quick-table column-def="qtVm.tableData.def" records="qtVm.tableData.records"></quick-table>
 	</div>
 </div>

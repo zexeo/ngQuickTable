@@ -1,5 +1,5 @@
-app.controller('componentCtrl', ['$scope', '$routeParams', 'TABLEDATA', '$location',
-    function($scope, $routeParams, TABLEDATA, $location) {
+app.controller('componentCtrl', ['$scope', '$routeParams', '$location',
+    function($scope, $routeParams, $location) {
         var ctrl = this;
         if (!$routeParams.component) return $location.path('/404');
 
@@ -27,4 +27,10 @@ app.controller('componentCtrl', ['$scope', '$routeParams', 'TABLEDATA', '$locati
 
 
     }
-])
+]);
+
+app.controller('quickTableCtrl',['$scope','TABLEDATA',function($scope,TABLEDATA){
+    var ctrl = this;
+    this.tableData = TABLEDATA.parsed;
+
+}])
