@@ -5,7 +5,10 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
                 key:'user',
                 order: 0,
                 type: "custom",
-                tpl: '<h2>tpl pls</h2>',
+                tpl: '<img width="50" ng-src="{{record.user.avatar}}" alt="{{record.user.username}}"  />',
+                attr: {
+                    style: 'text-align:center;',
+                }
             },
             {
                 key:'基本信息',
@@ -22,7 +25,7 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
                         _id: "54f3d8c6f0d58e0557e6f52f",
                         type: "input",
                     }, {
-                        key: "asdfasdf",
+                        key: "年龄",
                         order: 2,
                         _id: "54f3d8c6f0d58e0557e6f52e",
                         type: "input",
@@ -30,22 +33,23 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
                 ]
             }
             , {
-                key: "字段名称",
+                key: "分组",
+                edit:true,
                 order: 3,
                 _id: "54f3d8c6f0d58e0557e6f52d",
                 selectOption: {
                     allowMulti: false,
                     choices: [
-                        "选项名",
-                        "asdfad",
-                        "asdfd",
-                        "asdfasd"
+                        "第一组",
+                        "第二组",
+                        "第四组",
+                        "第三组"
                     ]
                 },
                 type: "select",
-                isPreset: false,
             }, {
-                key: "fuk",
+                key: "是否为会员",
+                edit:true,
                 mustFill: false,
                 order: 4,
                 _id: "54f3d8c6f0d58e0557e6f52c",
@@ -57,98 +61,111 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
                     ]
                 },
                 type: "boolean",
-                isPreset: false,
             }, {
-                key: "123323",
+                key: "付款方式",
+                edit:true,
                 order: 5,
                 _id: "54f3d8c6f0d58e0557e6f52b",
                 selectOption: {
                     allowMulti: true,
                     choices: [
-                        "选项名",
-                        "asdfasd"
+                        "支付宝",
+                        "财付通"
                     ]
                 },
                 type: "select",
-                isPreset: false,
             }, {
-                key: "121312",
+                key: "备注",
+                edit:true,
                 order: 6,
                 _id: "54f3d8c6f0d58e0557e6f52a",
                 type: "textarea",
-                isPreset: false,
             }
         ],
-        records: [
-            [
-                {
-                    key:'_id',
-                    value:'99-099323',
-                },
-                {
-                    key: '姓名',
-                    value:'eisneim',
-                },
-                {
-                    key: '手机号',
-                    value:'eisneim',
-                },
-                {
-                    key: 'asdfasdf',
-                    value:'eisneim',
-                },
-                {
-                    key: '字段名称',
-                    value:'eisneim',
-                },
-                {
-                    key: 'fuk',
-                    value:'eisneim',
-                },
-                {
-                    key: '123323',
-                    value:'eisneim',
-                },
-                {
-                    key: '121312',
-                    value:'eisneim',
-                }
-            ],
-            [
-                {
-                    key:'_id',
-                    value:'99-099323',
-                },
-                {
-                    key: '姓名',
-                    value:'terry',
-                },
-                {
-                    key: '手机号',
-                    value:'terry',
-                },
-                {
-                    key: 'asdfasdf',
-                    value:'terry',
-                },
-                {
-                    key: '字段名称',
-                    value:'terry',
-                },
-                {
-                    key: 'fuk',
-                    value:'terry',
-                },
-                {
-                    key: '123323',
-                    value:'terry',
-                },
-                {
-                    key: '121312',
-                    value:'terry',
-                }
-            ],
-                
+        records: [{
+            '_id':'99-099323',
+            'user':{
+                avatar:'img/avatar1.svg',
+                username:'eisneim',
+            },
+            '手机号':'12312',
+            '年龄':'12321',
+            '分组':'Ohent',
+            '是否为会员':'Ohent',
+            '付款方式':'eisneim',
+            '备注':'eisneim',
+            '姓名':'eisneim hahh',
+        },{
+            '_id':'99-099323',
+            'user':{
+                avatar:'img/avatar2.svg',
+                username:'Julia',
+            },
+            '手机号':'terry',
+            '年龄':'terry',
+            '分组':'terry',
+            '是否为会员':'terry',
+            '付款方式':'terry',
+            '备注':'terry',
+            '姓名':'eisneim hahh',
+        },
+        {
+            '_id':'99-eee',
+            'user':{
+                avatar:'img/avatar1.svg',
+                username:'eisneim',
+            },
+            '手机号':'joan',
+            '年龄':'joan',
+            '分组':'joan',
+            '是否为会员':'joan',
+            '付款方式':'joan',
+            '备注':'joan',
+            '姓名':'eisneim hahh',
+        },
+        {
+            '_id':'99-222',
+            'user':{
+                avatar:'img/avatar2.svg',
+                username:'Julia',
+            },
+            '手机号':'juia',
+            '年龄':'juia',
+            '分组':'juia',
+            '是否为会员':'juia',
+            '付款方式':'juia',
+            '备注':'juia',
+            '姓名':'eisneim hahh',
+        },
+        {
+            '_id':'99-ddd',
+            'user':{
+                avatar:'img/avatar1.svg',
+                username:'eisneim',
+            },
+            '手机号':'eisneim',
+            '年龄':'eisneim',
+            '分组':'eisneim',
+            '是否为会员':'oop',
+            '付款方式':'oop',
+            '备注':'oop',
+            '姓名':'eisneim hahh',
+        },
+
+        {
+            '_id':'99-099323',
+            'user':{
+                avatar:'img/avatar2.svg',
+                username:'Julia',
+            },
+            '手机号':'Ohent',
+            '年龄':'jane',
+            '分组':'jane',
+            '是否为会员':'jane',
+            '付款方式':'jane',
+            '备注':'Ohent',
+            '姓名':'eisneim hahh',
+        }          
         ],
     },
     raw:{
@@ -164,13 +181,12 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
                 _id: "54f3d8c6f0d58e0557e6f52f",
                 tplName: "input",
             }, {
-                key: "asdfasdf",
+                key: "年龄",
                 order: 2,
                 _id: "54f3d8c6f0d58e0557e6f52e",
                 tplName: "input",
-                isPreset: false,
             }, {
-                key: "字段名称",
+                key: "分组",
                 order: 3,
                 _id: "54f3d8c6f0d58e0557e6f52d",
                 selectOption: {
@@ -179,13 +195,12 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
                         "选项名",
                         "asdfad",
                         "asdfd",
-                        "asdfasd"
+                        "财付通"
                     ]
                 },
                 tplName: "select",
-                isPreset: false,
             }, {
-                key: "fuk",
+                key: "是否为会员",
                 mustFill: false,
                 order: 4,
                 _id: "54f3d8c6f0d58e0557e6f52c",
@@ -197,26 +212,23 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
                     ]
                 },
                 tplName: "boolean",
-                isPreset: false,
             }, {
-                key: "123323",
+                key: "付款方式",
                 order: 5,
                 _id: "54f3d8c6f0d58e0557e6f52b",
                 selectOption: {
                     allowMulti: true,
                     choices: [
                         "选项名",
-                        "asdfasd"
+                        "财付通"
                     ]
                 },
                 tplName: "select",
-                isPreset: false,
             }, {
-                key: "121312",
+                key: "备注",
                 order: 6,
                 _id: "54f3d8c6f0d58e0557e6f52a",
                 tplName: "textarea",
-                isPreset: false,
             }
         ],
 

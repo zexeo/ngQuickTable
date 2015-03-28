@@ -1,14 +1,23 @@
 <style>
-	
+	.qt-table th:first-of-type{
+		text-align: center;
+	}
 </style>
-<div class="qt-demo-quicktalbe" ng-controller="quickTableCtrl as qtVm">
+<div class="qt-demo-quicktalbe" ng-controller="quickTableCtrl as demoVm">
 	<header>
 		<coding lan="markup">
-&lt;quick-table>default&lt;/quick-table>
-&lt;quick-table href="" class="ua-btn-red">ua-btn-red&lt;/quick-table>
+&lt;quick-table column-def="Your$scope.def" records="Your$scope.records">&lt;/quick-table>
+//TODO
+1. add or Delete row 的API
+2. add or Delte column 的API
+3. sort row
+4. atuo/manually adjust row width
+5. theme（ based on: border, row backgorund-color ）
+6. select row
+7. edit record
 		</coding>
 	</header>
 	<div class="clearfix">
-		<quick-table column-def="qtVm.tableData.def" records="qtVm.tableData.records"></quick-table>
+		<quick-table column-def="demoVm.tableData.def" records="demoVm.tableData.records" options="demoVm.options"></quick-table>
 	</div>
 </div>

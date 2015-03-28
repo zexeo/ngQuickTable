@@ -5,12 +5,20 @@ ngQT.directive('quickTable',['$injector',function($injector){
 
 		this.rawData = options.data || {def:[],records:[]};
 		this.columnDef = options.columnDef;
-		if( !columnDef ) this.columnDef = this.rawToColumnDef( this.rawData );
+		if( !this.columnDef ) this.columnDef = this.rawToColumnDef( this.rawData );
+
+		// ----- some table style 
+		if( !options.tableDef ) options.tableDef = {};
+		this.theme = options.tableDef.theme || 'qt-theme-basic';//
+		// is even rows have background color
+		this.striped = options.tableDef.striped ;
+		this.bordered = options.tableDef.bordered ;
+		this.enableHover = options.tableDef.enableHover  ;
 
 		// ----- pre defined data -------
 		this.rows = [];
 
-		return this.buildTable();
+		this.buildTable();
 	}
 
 	var pro = Qtable.prototype;
@@ -23,19 +31,26 @@ ngQT.directive('quickTable',['$injector',function($injector){
 	}
 
 	pro.buildTable = function(){
-		var tpl = this.buildTableTpl();
+		this.tpl = this.buildTableTpl();
 	}
 
 	pro.buildTableTpl = function(){
-		var tpl = '<table width="100%" border="1" cellspacing="0">';
+		var styleClasses = '';
+		if( this.striped ) styleClasses+= ' qt-striped';
+		if( this.bordered ) styleClasses+= ' qt-bordered';
+		if( this.enableHover ) styleClasses+= 'qt-hover';
+		var tpl = '<table class="qt-table '+styleClasses+'" width="100%" border="1" cellspacing="0">';
 
 		// sort by order
 		this.columnDef.sort(function(a,b){
-			return b.order - a.order ;
+			return a.order - b.order ;
 		});
 		
 
-		var tHeadHTML = '<tr class="qt-head-row">',  rowTpl = '<tr class="qt-row">' ,rowEditTpl = {};
+		var tHeadHTML = '<thead><tr class="qt-head-row">',  
+			rowTpl = '<tr ng-repeat="record in records" class="qt-row">' ,
+			rowEditTpl = {};
+
 		for(var colIndex=0; colIndex<this.columnDef.length; colIndex++ ){
 			var colDef = this.columnDef[colIndex];
 			var cellTpl= '';
@@ -48,10 +63,10 @@ ngQT.directive('quickTable',['$injector',function($injector){
 			if(colDef.type == 'combined'){
 				if(!Array.isArray(colDef.fields) ) 
 					throw new TypeError('kye:"'+colDef.key+'" type="combined" must have fields property, and it must be array');
-				cellTpl = '<td><ul>';
+				cellTpl = '<td '+this.getCellAttr(colDef.attr)+'class="qt-combined"><ul>';
 				// cellEditTpl = '<td>'
 				for(var ii=0;ii<colDef.fields.length; ii++ ){
-					cellTpl += '<li>'+colDef.fields[ii].key+': {{record.'+colDef.fields[ii].key+'}}</li>';
+					cellTpl += '<li>'+colDef.fields[ii].key+': {{record["'+colDef.fields[ii].key+'"]}}</li>';
 				}
 				cellTpl += '</ul></td>';
 
@@ -60,12 +75,12 @@ ngQT.directive('quickTable',['$injector',function($injector){
 			}else if( colDef.type == 'custom' ){
 				if(!colDef.tpl) 
 					throw new Error('if colDef.type == "custom" then this column def must have "tpl" property');
-				cellTpl = '<td>'+colDef.tpl + '</td>';
+				cellTpl = '<td '+this.getCellAttr(colDef.attr)+'class="qt-custom">'+colDef.tpl + '</td>';
 				// editing is not allowed for this column.
 				rowEditTpl[colDef.key] = null;
 
 			}else if(colDef.type == 'select' || colDef.type == 'boolean'){
-				cellTpl = '<td>{{record.'+colDef.key+'}}</td>';
+				cellTpl = '<td '+this.getCellAttr(colDef.attr)+'class="qt-select">{{record["'+colDef.key+'"]}}</td>';
 
 				if(!colDef.selectOption || !Array.isArray(colDef.selectOption.choices) )
 					throw new Error('if colDef.type=="slect" or "boolean" then thisl column def must have "selectOption" and "colDef.selectOption.choices" must be array');
@@ -76,9 +91,12 @@ ngQT.directive('quickTable',['$injector',function($injector){
 					rowEditTpl[colDef.key] += '<option value="'+choice+'">'+choice+'</option>';
 				});
 				rowEditTpl[colDef.key] += '</select>';
-
+			}else if(colDef.type == 'textarea'){
+				cellTpl = '<td '+this.getCellAttr(colDef.attr)+'class="qt-textarea">{{record["'+colDef.key+'"]}}</td>';
+				// edit template
+				rowEditTpl[colDef.key] = '<textarea type="text"></textarea>';
 			}else{ //colDef.type == 'input'
-				cellTpl = '<td>{{record.'+colDef.key+'}}</td>';
+				cellTpl = '<td '+this.getCellAttr(colDef.attr)+'class="qt-input">{{record["'+colDef.key+'"]}}</td>';
 				// edit template
 				rowEditTpl[colDef.key] = '<input type="text" value="">';				
 			}
@@ -86,20 +104,28 @@ ngQT.directive('quickTable',['$injector',function($injector){
 			rowTpl += cellTpl;
 
 		}
-		tHeadHTML += '</tr>';
+		tHeadHTML += '</tr></thead>';
 		rowTpl += '</tr>';
 
 		tpl+= tHeadHTML;
-
+		tpl+= '<tbody>' + rowTpl +'</tbody>';
 
 		tpl += '</table>';
 		return tpl;
+	}
+	pro.getCellAttr = function( attrObj ){
+		if(!attrObj) return '';
+		var attrs = '';
+		for(var aa in attrObj){
+			if(!attrObj.hasOwnProperty( aa ) ) continue;
+			attrs += ' '+ aa +'="'+attrObj[aa]+'"';
+		}
+		return attrs;
 	}
 
 	pro.buildTableHeader = function(){
 
 	}
-
 
 	pro.idGen = function(prefix){
 		return prefix + (_id++);
@@ -112,26 +138,43 @@ ngQT.directive('quickTable',['$injector',function($injector){
 		replace:true,
 		scope:{
 			columnDef: '=',
-			records: '=',
+			records: '=?',
+			options: '=?',
 		},
 		template:function( tElm,attr ){
 			console.log('template');
-			return '<h3>hh</h3>';
+			return '<div class="qt-table-wraper"></div>';
 		},
-		compile: function(tElm,attr){
-			console.log(tElm);
+		// compile: function(tElm,attr){
+		// 	console.log('compile');
+		// 	console.log(tElm);
 
-		},
+		// },
 		controller: ['$scope',function( $scope ){
-			var $compile = $injector.get('$compile');
-			console.log($scope);
-			console.log(this);
-
+			this.table = new Qtable({
+				tableDef: $scope.options,
+				columnDef:  $scope.columnDef,
+				records: $scope.records,
+			});
 		}],
-		controllerAs:'qtbVm',
-		
+		controllerAs:'qtvm',
 		link: linkFunc,
-		// compile:function(tElm,attr){
+	};
+
+	function linkFunc($scope,elm,attr){
+		var $compile = $injector.get('$compile');
+
+		var qtvm = $scope.qtvm;
+		var table = angular.element( qtvm.table.tpl );
+		var $table = $compile(table)($scope);
+
+		elm.append($table);
+
+	}
+
+	return directiveObj;
+}]);
+// compile:function(tElm,attr){
 		// 	var inner = tElm[0].innerHTML;
 		// 	var tpl;
 		// 	// attributes
@@ -162,10 +205,3 @@ ngQT.directive('quickTable',['$injector',function($injector){
 		// 	tElm[0].remove();
 		// 	return linkFunc;
 		// }
-	};
-
-	function linkFunc($scope,elm,attr){
-		console.log('link....');
-	}
-	return directiveObj;
-}]);

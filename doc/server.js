@@ -42,6 +42,8 @@ function getContentType(filename){
 			return 'image/gif';
 		case '.html':
 			return 'text/html';
+		case '.svg':
+			return 'image/svg+xml';
 		case '.js':
 			return 'text/javascript';
 		case '.css' :
