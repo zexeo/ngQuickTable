@@ -1,5 +1,5 @@
 /*!
- *	angular-ui-awesome
+ *	ng-quick-table
  * 
  * Copyright(c) 2015 Eisneim Terry
  * MIT Licensed

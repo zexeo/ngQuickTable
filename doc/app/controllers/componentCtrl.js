@@ -32,5 +32,10 @@ app.controller('componentCtrl', ['$scope', '$routeParams', '$location',
 app.controller('quickTableCtrl',['$scope','TABLEDATA',function($scope,TABLEDATA){
     var ctrl = this;
     this.tableData = TABLEDATA.parsed;
+    this.options = {
+        striped:false,
+        enableHover:true,
+        bordered:false,
+    }
 
 }])

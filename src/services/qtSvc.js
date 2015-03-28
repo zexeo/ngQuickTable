@@ -1,4 +1,4 @@
-ngQT.directive('quickTable',['$injector',function($injector){
+ngQT.factory('$qtApi',[function(){
 	var _id = 0;
 
 	function Qtable(options){
@@ -6,6 +6,8 @@ ngQT.directive('quickTable',['$injector',function($injector){
 		this.rawData = options.data || {def:[],records:[]};
 		this.columnDef = options.columnDef;
 		if( !this.columnDef ) this.columnDef = this.rawToColumnDef( this.rawData );
+
+		this.id = options.id;
 
 		// ----- some table style 
 		if( !options.tableDef ) options.tableDef = {};
@@ -36,10 +38,10 @@ ngQT.directive('quickTable',['$injector',function($injector){
 
 	pro.buildTableTpl = function(){
 		var styleClasses = '';
-		if( this.striped ) styleClasses+= ' qt-striped';
-		if( this.bordered ) styleClasses+= ' qt-bordered';
-		if( this.enableHover ) styleClasses+= 'qt-hover';
-		var tpl = '<table class="qt-table '+styleClasses+'" width="100%" border="1" cellspacing="0">';
+		if( this.striped ) styleClasses+= 	' qt-striped';
+		if( this.bordered ) styleClasses+= 	' qt-bordered';
+		if( this.enableHover ) styleClasses+=' qt-hover';
+		var tpl = '<table class="qt-table '+styleClasses+'" id="'+this.id+'" width="100%" >';
 
 		// sort by order
 		this.columnDef.sort(function(a,b){
@@ -127,81 +129,24 @@ ngQT.directive('quickTable',['$injector',function($injector){
 
 	}
 
-	pro.idGen = function(prefix){
-		return prefix + (_id++);
+	var idGen = pro.idGen = function(prefix){
+		return prefix +'_'+ (_id++);
 	}
 
+	var api = {
+		tables:{},
+		create: function(options){
+			var id = options.id || idGen('ngt');
+			options.id = id;
 
+			this.tables[id] = new Qtable( options );
 
-	var directiveObj = {
-		restrict: "E",
-		replace:true,
-		scope:{
-			columnDef: '=',
-			records: '=?',
-			options: '=?',
+			return this.tables[id]
 		},
-		template:function( tElm,attr ){
-			console.log('template');
-			return '<div class="qt-table-wraper"></div>';
-		},
-		// compile: function(tElm,attr){
-		// 	console.log('compile');
-		// 	console.log(tElm);
-
-		// },
-		controller: ['$scope',function( $scope ){
-			this.table = new Qtable({
-				tableDef: $scope.options,
-				columnDef:  $scope.columnDef,
-				records: $scope.records,
-			});
-		}],
-		controllerAs:'qtvm',
-		link: linkFunc,
-	};
-
-	function linkFunc($scope,elm,attr){
-		var $compile = $injector.get('$compile');
-
-		var qtvm = $scope.qtvm;
-		var table = angular.element( qtvm.table.tpl );
-		var $table = $compile(table)($scope);
-
-		elm.append($table);
-
+		getTable:function( id ){
+			return this.tables[id];
+		}
 	}
 
-	return directiveObj;
+	return api;
 }]);
-// compile:function(tElm,attr){
-		// 	var inner = tElm[0].innerHTML;
-		// 	var tpl;
-		// 	// attributes
-		// 	var attributes = '';
-		// 	for(var aa in attr ){
-		// 		if(!attr.hasOwnProperty(aa) || ['$attr','$$element'].indexOf(aa)>=0){
-		// 			continue;
-		// 		}
-		// 		// if this attribute already exitst
-		// 		var attrIndex = topElm[0].indexOf( aa+'="');
-		// 		if(  attrIndex > -1  ){ 
-		// 			tpl = tpl.replace(aa+'="', aa+'="'+ attr[aa]+ ' ');
-		// 		}else {
-		// 			attributes += aa+'="'+attr[aa]+'"';	
-		// 		}
-				
-		// 	}
-
-		// 	var innerNodes = stringToNode( 
-		// 		tpl.replace('__replaceme__',inner ).replace('__attr__',attributes) 
-		// 	);
-
-		// 	// console.log( innerNodes )
-
-		// 	forEach(innerNodes,function(node,index){
-		// 		tElm[0].parentNode.insertBefore(node, tElm[0].nextSibling );
-		// 	});
-		// 	tElm[0].remove();
-		// 	return linkFunc;
-		// }
