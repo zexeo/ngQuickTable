@@ -39,6 +39,7 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
                 key: "分组",
                 edit:true,
                 order: 3,
+                minWidth:80,
                 _id: "54f3d8c6f0d58e0557e6f52d",
                 selectOption: {
                     allowMulti: false,
@@ -55,6 +56,7 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
                 edit:true,
                 mustFill: false,
                 order: 4,
+                minWidth:100,
                 _id: "54f3d8c6f0d58e0557e6f52c",
                 selectOption: {
                     allowMulti: false,
@@ -68,6 +70,7 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
                 key: "付款方式",
                 edit:true,
                 order: 5,
+                minWidth:100,
                 _id: "54f3d8c6f0d58e0557e6f52b",
                 selectOption: {
                     allowMulti: true,
@@ -81,6 +84,7 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
                 key: "备注",
                 edit:true,
                 order: 6,
+                minWidth:100,
                 _id: "54f3d8c6f0d58e0557e6f52a",
                 type: "textarea",
             }

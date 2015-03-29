@@ -68,15 +68,10 @@ ngQT.factory('$qtApi',[function(){
 		if( this.bordered ) styleClasses+= 	' qt-bordered';
 		if( this.enableHover ) styleClasses+=' qt-hover';
 		var tpl = '<table class="qt-table '+styleClasses+'" id="'+this.id+'" width="100%" >';
-
-		// sort by order
-		this.columnDef.sort(function(a,b){
-			return a.order - b.order ;
-		});
 		
 
 		var tHeadHTML = '<thead><tr class="qt-head-row">',  
-			rowTpl = '<tr ng-repeat="record in records" class="qt-row" ng-class="{active:rowSelection[record._id]}">' ,
+			rowTpl = '<tr ng-repeat="record in records track by record._id" class="qt-row" ng-class="{active:rowSelection[record._id]}">' ,
 			rowEditTpl = {};
 
 		for(var colIndex=0; colIndex<this.columnDef.length; colIndex++ ){
@@ -179,6 +174,30 @@ ngQT.factory('$qtApi',[function(){
 
 		return this.rows;
 	}
+	pro.setSelectedRows = function( ids ){
+		if(!Array.isArray(ids) ) 
+			throw new TypeError('setSelectedRows(ids) only accept array of row id');
+
+		ids.forEach(function(_id,index){
+			// it must exisit
+			if( this.recordIdMap[_id] ){ 
+				this.rowSelection[ _id ] = true;
+			}
+		});
+		return this.rowSelection;
+	}
+	// pro.clearSelectedRows = function(){
+
+	// }
+
+	// ------------- auto merge column -----------------
+	pro.mergeColumn = function( columnDefs ){
+		if(!Array.isArray(columnDefs) ) 
+			throw new TypeError('mergeColumn(columnDefs) only accept array of columnDef ');
+
+
+	}
+
 
 	var idGen = pro.idGen = function(prefix){
 		return prefix +'_'+ (_id++);

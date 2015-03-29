@@ -39,6 +39,8 @@ app.controller('quickTableCtrl',['$scope','TABLEDATA',function($scope,TABLEDATA)
 
         rowSelection:true,
         columnSelection:false,
+
+        autoMergeColumn: true,
     }
 
 }])
