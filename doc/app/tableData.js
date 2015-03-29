@@ -5,6 +5,8 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
                 key:'user',
                 order: 0,
                 type: "custom",
+                width: 80,
+                headerTpl:'<div style="text-align:center">用户信息</div>',
                 tpl: '<img width="50" ng-src="{{record.user.avatar}}" alt="{{record.user.username}}"  />',
                 attr: {
                     style: 'text-align:center;',
@@ -12,6 +14,7 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
             },
             {
                 key:'基本信息',
+                headerTpl:'<span>基本信息</span>',
                 order: 1,
                 type:'combined',
                 fields:[
@@ -83,7 +86,7 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
             }
         ],
         records: [{
-            '_id':'99-099323',
+            '_id':'99-0993231',
             'user':{
                 avatar:'img/avatar1.svg',
                 username:'eisneim',
@@ -91,12 +94,12 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
             '手机号':'12312',
             '年龄':'12321',
             '分组':'Ohent',
-            '是否为会员':'Ohent',
-            '付款方式':'eisneim',
+            '是否为会员':'是',
+            '付款方式':'支付宝',
             '备注':'eisneim',
             '姓名':'eisneim hahh',
         },{
-            '_id':'99-099323',
+            '_id':'99-0993234',
             'user':{
                 avatar:'img/avatar2.svg',
                 username:'Julia',
@@ -104,13 +107,13 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
             '手机号':'terry',
             '年龄':'terry',
             '分组':'terry',
-            '是否为会员':'terry',
-            '付款方式':'terry',
+            '是否为会员':'是',
+            '付款方式':'信用卡',
             '备注':'terry',
             '姓名':'eisneim hahh',
         },
         {
-            '_id':'99-eee',
+            '_id':'99-eee3',
             'user':{
                 avatar:'img/avatar1.svg',
                 username:'eisneim',
@@ -118,13 +121,13 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
             '手机号':'joan',
             '年龄':'joan',
             '分组':'joan',
-            '是否为会员':'joan',
-            '付款方式':'joan',
+            '是否为会员':'否',
+            '付款方式':'支付宝',
             '备注':'joan',
             '姓名':'eisneim hahh',
         },
         {
-            '_id':'99-222',
+            '_id':'99-2222',
             'user':{
                 avatar:'img/avatar2.svg',
                 username:'Julia',
@@ -132,8 +135,8 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
             '手机号':'juia',
             '年龄':'juia',
             '分组':'juia',
-            '是否为会员':'juia',
-            '付款方式':'juia',
+            '是否为会员':'是',
+            '付款方式':'银行卡',
             '备注':'juia',
             '姓名':'eisneim hahh',
         },
@@ -146,14 +149,14 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
             '手机号':'eisneim',
             '年龄':'eisneim',
             '分组':'eisneim',
-            '是否为会员':'oop',
-            '付款方式':'oop',
+            '是否为会员':'否',
+            '付款方式':'支付宝',
             '备注':'oop',
             '姓名':'eisneim hahh',
         },
 
         {
-            '_id':'99-099323',
+            '_id':'99-0993235',
             'user':{
                 avatar:'img/avatar2.svg',
                 username:'Julia',
@@ -161,8 +164,8 @@ angular.module('ngQuickTable-doc').constant('TABLEDATA', {
             '手机号':'Ohent',
             '年龄':'jane',
             '分组':'jane',
-            '是否为会员':'jane',
-            '付款方式':'jane',
+            '是否为会员':'否',
+            '付款方式':'百付通',
             '备注':'Ohent',
             '姓名':'eisneim hahh',
         }          

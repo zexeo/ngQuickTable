@@ -36,6 +36,9 @@ app.controller('quickTableCtrl',['$scope','TABLEDATA',function($scope,TABLEDATA)
         striped:false,
         enableHover:true,
         bordered:false,
+
+        rowSelection:true,
+        columnSelection:false,
     }
 
 }])

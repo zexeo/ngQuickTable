@@ -8,6 +8,10 @@ ngQT.factory('$qtApi',[function(){
 		if( !this.columnDef ) this.columnDef = this.rawToColumnDef( this.rawData );
 
 		this.id = options.id;
+		this.enableRowSelection = options.rowSelection;
+		if(this.enableRowSelection){
+			this.rowSelection = {};
+		}
 
 		// ----- some table style 
 		if( !options.tableDef ) options.tableDef = {};
@@ -19,7 +23,14 @@ ngQT.factory('$qtApi',[function(){
 
 		// ----- pre defined data -------
 		this.rows = [];
+		this.records = options.records ||[];
+		this.generateIdMap(this.records); // this.recordIdMap = {'989': {onerecord}, }
 
+		// if enable row selection, a column should be added infront
+		// all we need to do is add a custom columnDef and add record to it;
+		this.addRowSelectionColumn();
+
+		// generate table template
 		this.buildTable();
 	}
 
@@ -31,12 +42,27 @@ ngQT.factory('$qtApi',[function(){
 
 		return def;
 	}
+	/**
+	 * generate id map for all records, so it will be easier to access rows by their id
+	 */
+	pro.generateIdMap = function(records){
+		this.recordIdMap = {};
+		for (var i = records.length - 1; i >= 0; i--) {
+			if(!records[i]._id ) records[i]._id = this.idGen('record');
+			this.recordIdMap[ records[i]._id ] = records[i];
+		};
+
+		// we updated records id, so we can save it back
+		this.records = records;
+		return this.recordIdMap;
+	}
 
 	pro.buildTable = function(){
 		this.tpl = this.buildTableTpl();
 	}
 
 	pro.buildTableTpl = function(){
+		// some css styles
 		var styleClasses = '';
 		if( this.striped ) styleClasses+= 	' qt-striped';
 		if( this.bordered ) styleClasses+= 	' qt-bordered';
@@ -50,14 +76,17 @@ ngQT.factory('$qtApi',[function(){
 		
 
 		var tHeadHTML = '<thead><tr class="qt-head-row">',  
-			rowTpl = '<tr ng-repeat="record in records" class="qt-row">' ,
+			rowTpl = '<tr ng-repeat="record in records" class="qt-row" ng-class="{active:rowSelection[record._id]}">' ,
 			rowEditTpl = {};
 
 		for(var colIndex=0; colIndex<this.columnDef.length; colIndex++ ){
 			var colDef = this.columnDef[colIndex];
 			var cellTpl= '';
 
-			tHeadHTML += '<th>'+ colDef.key +'</th>';
+			// build up table header
+			var theader = colDef.headerTpl ? colDef.headerTpl : colDef.key;
+			var theaderWidth = 'width="'+(colDef.width ? colDef.width : '')+'px"';
+			tHeadHTML += '<th '+theaderWidth+'>'+ theader +'</th>';
 
 			/**
 			 * determin which cell template should it be;
@@ -125,8 +154,30 @@ ngQT.factory('$qtApi',[function(){
 		return attrs;
 	}
 
-	pro.buildTableHeader = function(){
+	pro.addRowSelectionColumn = function(def){
+		if(!def) def = {};
+		var rowdef = {
+			key:'rowSelect',
+			order: 0,
+			type: "custom",
+			width: def.width || 50,
+			headerTpl: def.headerTpl || '<div><input type="checkbox" ng-model="allRowSelected"/></div>',
+			tpl: def.tpl || '<input type="checkbox" ng-model="rowSelection[record._id]"/>',
+		};
 
+		this.columnDef.unshift(rowdef);
+	}
+
+	pro.getSelectedRows = function(){
+		// rest previous selection
+		this.rows = [];
+		for(var _id in this.rowSelection ){
+			if(this.rowSelection[_id]){
+				this.rows.push( this.recordIdMap[_id] );
+			}
+		}
+
+		return this.rows;
 	}
 
 	var idGen = pro.idGen = function(prefix){
