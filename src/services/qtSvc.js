@@ -26,6 +26,19 @@ ngQT.factory('$qtApi',[function(){
 		this.records = options.records ||[];
 		this.generateIdMap(this.records); // this.recordIdMap = {'989': {onerecord}, }
 
+		// if autoMergeColumn is set to true, do some pre merge
+		if(options.autoMergeColumn){
+			this.autoMergeColumn = true;
+
+
+
+
+
+
+
+			
+		}
+
 		// if enable row selection, a column should be added infront
 		// all we need to do is add a custom columnDef and add record to it;
 		this.addRowSelectionColumn();
@@ -194,7 +207,34 @@ ngQT.factory('$qtApi',[function(){
 	pro.mergeColumn = function( columnDefs ){
 		if(!Array.isArray(columnDefs) ) 
 			throw new TypeError('mergeColumn(columnDefs) only accept array of columnDef ');
+		// if just one item , no need to merge;
+		if(columnDefs.length <= 1) return;
+		// sort the array ascending
+		columnDefs.sort(function(a,b){
+			return a.order - b.order;
+		});
+		// first, remove old def, then generata new def with the type of 'combined';
+		var combinedDef = {
+			key:'合并显示',
+			order: columnDefs[0].order,
+			type:'combined',
+			isGerated: true,
+			fields: [],
+		}
+		for (var ii = columnDefs.length - 1; ii >= 0; ii--) {
+			var def = columnDefs[ii];
+			combinedDef.fields.push( columnDefs[ii] );
+			// remove old def
+			this.columnDef = this.columnDef.filter(function(ee){
+				if( ee.key != def.key ) return ee;
+			});
 
+		};
+
+		console.log('--this.columnDef')
+		console.log( this.columnDef );
+
+		return this.columnDef.splice(combinedDef.order,0, combinedDef );
 
 	}
 

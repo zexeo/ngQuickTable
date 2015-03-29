@@ -33,14 +33,11 @@ ngQT.directive('quickTable',['$injector','$qtApi',function($injector,$qtApi){
 			$scope.columnDef.sort(function(a,b){
 				return a.order - b.order ;
 			});
-
-			this.render = function(callback){
-				qtvm.table = $qtApi.create({
-					id: $scope.id,
-					tableDef: $scope.options,
-					columnDef:  $scope.columnDef,
-					records: $scope.records,
-				});
+			/**
+			 * render table
+			 */
+			this.render = function(opt,callback){
+				qtvm.table = $qtApi.create(opt);
 
 				$scope.rowSelection = this.table.rowSelection = {};
 
@@ -53,7 +50,12 @@ ngQT.directive('quickTable',['$injector','$qtApi',function($injector,$qtApi){
 				return qtvm.table;
 			}
 
-			this.render();
+			this.render({
+				id: $scope.id,
+				tableDef: $scope.options,
+				columnDef:  $scope.columnDef,
+				records: $scope.records,
+			});
 			
 
 			$scope.selectAllRow = this.table.selectAllRow = function(selectOrUnselect){
@@ -99,46 +101,70 @@ ngQT.directive('quickTable',['$injector','$qtApi',function($injector,$qtApi){
 		/**
 		 * ==== auto merge columns into one column according to screen size =====
 		 */
-		qtvm.ifMergeNeeded = function(){
+		qtvm.ifMergeNeeded = function(columnDef){
+			var shouldBeMerged = [];
+
 			var headerExceed = $table[0].clientWidth > elm[0].clientWidth ;
 			/**
 			 * this type of merge don't need to check which column need to merge
 			 * it should take first 3 columns(those column should not be the type of 'custom','')
 			 */
 			if( headerExceed ) {
-				// do something
-				return;
+				for(var ii=0; ii<columnDef.length;ii++){
+					var def = columnDef[ii];
+					if( 
+						def.type != 'combined' &&
+						def.type != 'custom'  
+					){
+						shouldBeMerged.push( def );
+					}
+				}
+
+				return qtvm.table.mergeColumn( shouldBeMerged );
 			}
 			/**
 			 * check columnDef.minWidth > current column width, if so put those column
 			 * in an array, then take first 3 and merge theme;
 			 */
-			var shouldBeMerged = [];
 			var $headerCells = $table.find('th');
 
-			for (var ii = qtvm.table.columnDef.length - 1; ii >= 0; ii--) {
-				var def = qtvm.table.columnDef[ii];
+			for (var ii = columnDef.length - 1; ii >= 0; ii--) {
+				var def = columnDef[ii];
 				// if width has been set, do not merge
 				if(def.width) continue;
 
 				if( def.minWidth && 
 					def.minWidth > $headerCells[ii].clientWidth  &&
 					def.type != 'combined' &&
-					def.type != 'custom'
+					def.type != 'custom' 
 				){
 					shouldBeMerged.push( def );
 				};
 			};
 
-			console.log('those column should be merged')
-			console.log(shouldBeMerged);
+			return qtvm.table.mergeColumn( shouldBeMerged )
+
+		}// end of ifMergeNeeded()
+
+		qtvm.mergeColumnRerender = function( newColumnDef ){
+			if( !newColumnDef ) newColumnDef = qtvm.ifMergeNeeded( qtvm.table.columnDef );
+			console.log('----newColumnDef-----');
+			console.log(newColumnDef);
+			//if still no need to 
+			if( !newColumnDef ) return;
+			// now let's reRender it !!;
+			qtvm.render({
+				id: $scope.id,
+				tableDef: $scope.options,
+				columnDef:  newColumnDef,
+				records: $scope.records,
+			});
 		}
 
-		if($scope.options.autoMergeColumn){
-			qtvm.ifMergeNeeded();
+		// if($scope.options.autoMergeColumn){
+		// 	qtvm.mergeColumnRerender();
 
-			
-		}
+		// }
 
 	}
 
