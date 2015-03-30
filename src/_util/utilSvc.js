@@ -1,4 +1,4 @@
-ngQT.factory('uaUtil',[function(){
+ngQT.factory('$qtUtil',[function(){
 	var dom = {};
 	/**
 	 * in order to calculate top,left value of ripple center ,
@@ -21,8 +21,34 @@ ngQT.factory('uaUtil',[function(){
 		}
 	};
 
+	var debounce = function(func, wait) {
+        var args, context, later, result, timeout, timestamp;
+        timeout = args = context = timestamp = result = null;
+        later = function() {
+          var last;
+          last = +new Date() - timestamp;
+          if (last < wait && last > 0) {
+            return timeout = setTimeout(later, wait - last);
+          } else {
+            return timeout = null;
+          }
+        };
+        return function() {
+          context = this;
+          args = arguments;
+          timestamp = +new Date();
+          if (!timeout) {
+            timeout = setTimeout(later, wait);
+            result = func.apply(context, args);
+            context = args = null;
+          }
+          return result;
+        };
+      };
+
 	return {
 		dom:dom,
+		debounce: debounce,
 	}
 
 }])

@@ -1,4 +1,4 @@
-ngQT.directive('quickTable',['$injector','$qtApi',function($injector,$qtApi){
+ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil',function($injector,$qtApi,$qtUtil){
 	// some constant
 	var events = {
 		rowSelect:'ROW_SELECT',
@@ -29,10 +29,6 @@ ngQT.directive('quickTable',['$injector','$qtApi',function($injector,$qtApi){
 		controller: ['$scope',function( $scope ){
 			var qtvm = this;
 
-			// sort by col.order
-			$scope.columnDef.sort(function(a,b){
-				return a.order - b.order ;
-			});
 			/**
 			 * render table
 			 */
@@ -40,25 +36,26 @@ ngQT.directive('quickTable',['$injector','$qtApi',function($injector,$qtApi){
 				qtvm.table = $qtApi.create(opt);
 
 				$scope.rowSelection = this.table.rowSelection = {};
-
-				if( qtvm.compileTable && typeof qtvm.compileTable == 'function' ) qtvm.compileTable();
+				
+				// it will not run in the first time, but will run during reRender
+				if( qtvm.compileTable && typeof qtvm.compileTable == 'function' ) 
+					qtvm.compileTable();
+				
 				// put reference to api;
 				qtvm.table.render = qtvm.render;
 
-				if(typeof callback == 'function') callback.call(null,qtvm.table);
+				if(typeof callback == 'function') 
+					callback.call(null,qtvm.table);
 
 				return qtvm.table;
 			}
-
-			this.render({
-				id: $scope.id,
-				tableDef: $scope.options,
-				columnDef:  $scope.columnDef,
-				records: $scope.records,
-			});
 			
+			this.reRender = function(opt){
+				qtvm.table.reBuildTable(opt);	
+				qtvm.compileTable();
+			}
 
-			$scope.selectAllRow = this.table.selectAllRow = function(selectOrUnselect){
+			$scope.selectAllRow = function(selectOrUnselect){
 				for(var ii=0;ii<$scope.records.length;ii++){
 					$scope.rowSelection[ $scope.records[ii]._id ] = selectOrUnselect;
 				}
@@ -87,6 +84,16 @@ ngQT.directive('quickTable',['$injector','$qtApi',function($injector,$qtApi){
 		var qtvm = $scope.qtvm;
 
 		var table,$table;
+		
+		qtvm.render({
+			id: $scope.id,
+			tableDef: $scope.options,
+			columnDef:  $scope.columnDef,
+			records: $scope.records,
+			container: elm[0],
+		});
+
+		qtvm.table.selectAllRow = $scope.selectAllRow;
 
 		qtvm.compileTable = function(){
 			// remove old table if there is any;
@@ -97,11 +104,12 @@ ngQT.directive('quickTable',['$injector','$qtApi',function($injector,$qtApi){
 			elm.append($table);
 		}
 		qtvm.compileTable();
+		
 
 		/**
 		 * ==== auto merge columns into one column according to screen size =====
 		 */
-		qtvm.ifMergeNeeded = function(columnDef){
+		qtvm.ifMergeNeeded = qtvm.table.ifMergeNeeded = function(columnDef){
 			var shouldBeMerged = [];
 
 			var headerExceed = $table[0].clientWidth > elm[0].clientWidth ;
@@ -114,6 +122,7 @@ ngQT.directive('quickTable',['$injector','$qtApi',function($injector,$qtApi){
 					var def = columnDef[ii];
 					if( 
 						def.type != 'combined' &&
+						def.type != 'textarea' && 
 						def.type != 'custom'  
 					){
 						shouldBeMerged.push( def );
@@ -133,9 +142,13 @@ ngQT.directive('quickTable',['$injector','$qtApi',function($injector,$qtApi){
 				// if width has been set, do not merge
 				if(def.width) continue;
 
+				// if some col is already merged, the count of $headerCells != columnDefs.length
+				if(!$headerCells[ii]) continue;
+
 				if( def.minWidth && 
-					def.minWidth > $headerCells[ii].clientWidth  &&
+					def.minWidth + 20 > $headerCells[ii].clientWidth  &&
 					def.type != 'combined' &&
+					def.type != 'textarea' && 
 					def.type != 'custom' 
 				){
 					shouldBeMerged.push( def );
@@ -148,24 +161,36 @@ ngQT.directive('quickTable',['$injector','$qtApi',function($injector,$qtApi){
 
 		qtvm.mergeColumnRerender = function( newColumnDef ){
 			if( !newColumnDef ) newColumnDef = qtvm.ifMergeNeeded( qtvm.table.columnDef );
-			console.log('----newColumnDef-----');
-			console.log(newColumnDef);
+			// console.log('----newColumnDef-----');
+			// console.log(newColumnDef);
 			//if still no need to 
-			if( !newColumnDef ) return;
-			// now let's reRender it !!;
-			qtvm.render({
-				id: $scope.id,
-				tableDef: $scope.options,
-				columnDef:  newColumnDef,
-				records: $scope.records,
-			});
+			if( newColumnDef ){
+				// now let's reRender it !!;
+				qtvm.reRender({
+					columnDef:  newColumnDef,
+				});
+			}else{
+				// un merge combined columns
+				qtvm.reRender({
+					columnDef:  $scope.columnDef,
+				});
+			}
+			
 		}
 
-		// if($scope.options.autoMergeColumn){
-		// 	qtvm.mergeColumnRerender();
+		var onWindowResize = $qtUtil.debounce(function(){
 
-		// }
+			qtvm.mergeColumnRerender(  qtvm.ifMergeNeeded( $scope.columnDef ) )
 
+		},500)
+
+		if($scope.options.autoMergeColumn){
+			window.addEventListener('resize', onWindowResize );			
+		}
+
+		$scope.$on('$destroy',function(){
+			window.removeEventListener('resize', onWindowResize );			
+		});
 	}
 
 	return directiveObj;

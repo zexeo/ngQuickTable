@@ -7,6 +7,7 @@ ngQT.factory('$qtApi',[function(){
 		this.columnDef = options.columnDef;
 		if( !this.columnDef ) this.columnDef = this.rawToColumnDef( this.rawData );
 
+		this.container = options.container;
 		this.id = options.id;
 		this.enableRowSelection = options.rowSelection;
 		if(this.enableRowSelection){
@@ -27,16 +28,18 @@ ngQT.factory('$qtApi',[function(){
 		this.generateIdMap(this.records); // this.recordIdMap = {'989': {onerecord}, }
 
 		// if autoMergeColumn is set to true, do some pre merge
-		if(options.autoMergeColumn){
+		if( options.tableDef.autoMergeColumn ){
 			this.autoMergeColumn = true;
-
-
-
-
-
-
-
-			
+			// ifMergeNeeded is defined in directive, so in the first time it won't run.
+			if(typeof this.ifMergeNeeded == 'function'){
+				this.ifMergeNeeded( this.columnDef );
+			}else{
+				if(!this.container)
+					throw new Error('autoMergeColumn need container');
+				var coldefs = this.isHeaderRowTooNarrow( this.columnDef , this.container );
+				// console.log(coldefs);
+				this.mergeColumn( coldefs ); 
+			}
 		}
 
 		// if enable row selection, a column should be added infront
@@ -71,7 +74,27 @@ ngQT.factory('$qtApi',[function(){
 	}
 
 	pro.buildTable = function(){
+		// sort by col.order
+		this.columnDef.sort(function(a,b){
+			return a.order - b.order ;
+		});
+
 		this.tpl = this.buildTableTpl();
+	}
+	/**
+	 * !!! should provide validation!!!!
+	 */
+	pro.reBuildTable = function(opt){
+		// override some option
+		for(var key in opt ){
+			if(opt.hasOwnProperty(key)){
+				this[key] = opt[key];
+			}
+		}
+
+		this.buildTable();
+
+		return this.tpl;
 	}
 
 	pro.buildTableTpl = function(){
@@ -150,6 +173,7 @@ ngQT.factory('$qtApi',[function(){
 		tpl+= '<tbody>' + rowTpl +'</tbody>';
 
 		tpl += '</table>';
+
 		return tpl;
 	}
 	pro.getCellAttr = function( attrObj ){
@@ -204,6 +228,35 @@ ngQT.factory('$qtApi',[function(){
 	// }
 
 	// ------------- auto merge column -----------------
+	/**
+	 * simple check: sum of all header cell width should be greater than
+	 * a minimal number based on
+	 */
+	pro.isHeaderRowTooNarrow = function( columnDefs , container ){
+		var shouldBeMerged = [];
+		var avgWidth = container.clientWidth / columnDefs.length; 
+
+		/**
+		 * sort by key length desc
+		 */
+		columnDefs.sort(function(a,b){
+			return a.key.length - b.key.length;
+		});
+		
+		if(avgWidth < 120 ){
+			for (var ii = columnDefs.length - 1; ii >= 0; ii--) {
+				if(shouldBeMerged.length >= 3 ) continue;
+				var def = columnDefs[ii];
+				if( 
+					def.type != 'combined' && def.type != 'custom' && def.type != 'textarea' && !def.width 
+				){
+					shouldBeMerged.push( def );
+				}
+			};
+		}
+		return shouldBeMerged;
+	}
+
 	pro.mergeColumn = function( columnDefs ){
 		if(!Array.isArray(columnDefs) ) 
 			throw new TypeError('mergeColumn(columnDefs) only accept array of columnDef ');
@@ -231,11 +284,13 @@ ngQT.factory('$qtApi',[function(){
 
 		};
 
-		console.log('--this.columnDef')
-		console.log( this.columnDef );
+		// console.log('--this.columnDef')
+		// console.log( this.columnDef );
+		console.log('-----combinedDef')
+		console.log(combinedDef)
 
-		return this.columnDef.splice(combinedDef.order,0, combinedDef );
-
+		this.columnDef.splice(combinedDef.order,0, combinedDef );
+		return this.columnDef
 	}
 
 
