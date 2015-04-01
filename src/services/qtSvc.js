@@ -9,10 +9,6 @@ ngQT.factory('$qtApi',[function(){
 
 		this.container = options.container;
 		this.id = options.id;
-		this.enableRowSelection = options.rowSelection;
-		if(this.enableRowSelection){
-			this.rowSelection = {};
-		}
 
 		// ----- some table style 
 		if( !options.tableDef ) options.tableDef = {};
@@ -44,7 +40,20 @@ ngQT.factory('$qtApi',[function(){
 
 		// if enable row selection, a column should be added infront
 		// all we need to do is add a custom columnDef and add record to it;
-		this.addRowSelectionColumn();
+		this.enableRowSelection = options.tableDef.rowSelection;
+		if(this.enableRowSelection){
+			this.rowSelection = {};
+			this.addRowSelectionColumn();
+		}
+
+		/**
+		 * if enable sort , we will just add trigger to the tableCell,
+		 * the actual sort will happen in directive
+		 */
+		this.enableSort = options.tableDef.enableSort;
+		if(this.enableSort){
+			// console.log('sort is enabled')
+		}
 
 		// generate table template
 		this.buildTable();
@@ -116,8 +125,14 @@ ngQT.factory('$qtApi',[function(){
 
 			// build up table header
 			var theader = colDef.headerTpl ? colDef.headerTpl : colDef.key;
+
 			var theaderWidth = 'width="'+(colDef.width ? colDef.width : '')+'px"';
-			tHeadHTML += '<th '+theaderWidth+'>'+ theader +'</th>';
+			var enableSort = this.enableSort ? this.getSortStringForTpl(colDef) : null;
+
+			tHeadHTML += '<th '+theaderWidth + (enableSort?enableSort:'') +'>'+
+				 theader +
+				 (!enableSort?'':'<span calss="qt-sort-arrow" ng-class="{up: qtvm.sortMap[\''+colDef.key+'\']==\'up\', donwn: qtvm.sortMap[\''+colDef.key+'\']==\'down\' }"><span>') +
+			'</th>';
 
 			/**
 			 * determin which cell template should it be;
@@ -291,6 +306,16 @@ ngQT.factory('$qtApi',[function(){
 
 		this.columnDef.splice(combinedDef.order,0, combinedDef );
 		return this.columnDef
+	}
+	// ====================== sort row================
+	/**
+	 * 
+	 * @param  {object} def the column def;
+	 * @return {string} tpl like: ng-click="sortRow(....)"
+	 */
+	pro.getSortStringForTpl = function(def){
+		if( ['custom','combined','textarea'].indexOf( def.type ) != -1 ) return null;
+		return ' ng-click="qtvm.sortRow(\''+def.key+'\')" class="qt-sort-enabled"';
 	}
 
 

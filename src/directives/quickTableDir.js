@@ -175,7 +175,6 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil',function($injector,$
 					columnDef:  $scope.columnDef,
 				});
 			}
-			
 		}
 
 		var onWindowResize = $qtUtil.debounce(function(){

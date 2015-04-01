@@ -192,3 +192,11 @@ table {
     }
   }
 }
+
+// ----------------- different features -----------
+.qt-table{
+  th.qt-sort-enabled{
+    background: red;
+  }
+}
+
