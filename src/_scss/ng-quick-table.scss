@@ -196,7 +196,21 @@ table {
 // ----------------- different features -----------
 .qt-table{
   th.qt-sort-enabled{
-    background: red;
+    cursor: pointer;
+  }
+  .qt-sort-arrow{
+    display:inline-block;
+    margin-left: 3px;
+    margin-bottom: -5px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    &.up{
+      background: yellow;
+    }
+    &.down{
+      background: blue;
+    }
   }
 }
 

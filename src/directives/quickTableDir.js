@@ -5,7 +5,6 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil',function($injector,$
 		rowUnselect: 'ROW_UNSELECT',
 		rowSelectAll: 'ROW_SELECT_ALL',
 		rowClear: 'ROW_CLEAR',
-
 	}
 
 	var directiveObj = {
@@ -28,6 +27,10 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil',function($injector,$
 		// },
 		controller: ['$scope',function( $scope ){
 			var qtvm = this;
+
+			// some initail variables
+			this.sortMap = {};
+
 
 			/**
 			 * render table
@@ -73,6 +76,29 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil',function($injector,$
 				}
 			});
 			
+			// ----------- sort row ---------
+			this.sortRow = function(key){
+				var oldWay = qtvm.sortMap[key];
+				// now clear other keyword sort
+				qtvm.sortMap = {};
+
+				if( oldWay == 'up' ){
+					qtvm.sortMap[key] = 'down';
+				}else if( oldWay == 'down' ){
+					qtvm.sortMap[key] = null;
+				}else{	
+					// default way is up 
+					qtvm.sortMap[key] = 'up';
+				}
+
+				if(!qtvm.sortMap[key] ) return;
+
+				$scope.records.sort( function( a,b ){
+					return qtvm.sortMap[key] == 'up'? 
+						a[key] > b[key] : a[key] < b[key] ;
+				});
+
+			}
 
 		}],
 		controllerAs:'qtvm',

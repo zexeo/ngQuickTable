@@ -22,29 +22,31 @@ ngQT.factory('$qtUtil',[function(){
 	};
 
 	var debounce = function(func, wait) {
-        var args, context, later, result, timeout, timestamp;
-        timeout = args = context = timestamp = result = null;
-        later = function() {
-          var last;
-          last = +new Date() - timestamp;
-          if (last < wait && last > 0) {
-            return timeout = setTimeout(later, wait - last);
-          } else {
-            return timeout = null;
-          }
-        };
-        return function() {
-          context = this;
-          args = arguments;
-          timestamp = +new Date();
-          if (!timeout) {
-            timeout = setTimeout(later, wait);
-            result = func.apply(context, args);
-            context = args = null;
-          }
-          return result;
-        };
+      var args, context, later, result, timeout, timestamp;
+      timeout = args = context = timestamp = result = null;
+      later = function() {
+        var last;
+        last = +new Date() - timestamp;
+        if (last < wait && last > 0) {
+          return timeout = setTimeout(later, wait - last);
+        } else {
+          return timeout = null;
+        }
       };
+      return function() {
+        context = this;
+        args = arguments;
+        timestamp = +new Date();
+        if (!timeout) {
+          timeout = setTimeout(later, wait);
+          result = func.apply(context, args);
+          context = args = null;
+        }
+        return result;
+      };
+    };
+
+
 
 	return {
 		dom:dom,
