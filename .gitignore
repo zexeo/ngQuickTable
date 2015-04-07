@@ -20,7 +20,8 @@ node_modules
 .bower-*/
 .idea/
 
-build
+build/**/*.js
+build/**/*.css
 
 doc/vendor/
 doc/app/ng-quick-table.js

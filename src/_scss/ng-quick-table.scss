@@ -2,6 +2,7 @@
 @import '_color_palette.scss';
 @import '_mixins.scss';
 @import '_layout.scss';
+@import 'icons.scss';
 
 $line-height-base:        1.428571429 !default; // 20/14
 $line-height-computed:    floor(14px * $line-height-base) !default; // ~20px
@@ -205,11 +206,24 @@ table {
     width: 20px;
     height: 20px;
     cursor: pointer;
-    &.up{
-      background: yellow;
+    &.up , &.down{
+      font-family: 'icomoon';
+      speak: none;
+      font-style: normal;
+      font-weight: normal;
+      font-variant: normal;
+      text-transform: none;
+      line-height: 1;
+
+      /* Better Font Rendering =========== */
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
-    &.down{
-      background: blue;
+    &.up:before{
+      content: "\ea3e";
+    }
+    &.down:before{
+      content: "\ea3a";
     }
   }
 }
