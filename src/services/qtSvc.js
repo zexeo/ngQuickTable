@@ -131,7 +131,7 @@ ngQT.factory('$qtApi',[function(){
 
 			tHeadHTML += '<th '+theaderWidth + (enableSort?enableSort:'') +'>'+
 				 theader +
-				 (!enableSort?'':'<span class="qt-sort-arrow" ng-class="{up: qtvm.sortMap[\''+colDef.key+'\']==\'up\', down: qtvm.sortMap[\''+colDef.key+'\']==\'down\' }"><span>') +
+				 (!enableSort?'':'<span class="qt-sort-arrow" ng-class="{up: qtvm.sortMap[\''+colDef.key+'\']==\'asc\', down: qtvm.sortMap[\''+colDef.key+'\']==\'desc\' }"><span>') +
 			'</th>';
 
 			/**

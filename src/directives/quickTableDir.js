@@ -1,4 +1,5 @@
-ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil',function($injector,$qtApi,$qtUtil){
+ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil','$rowSorter',
+	function($injector,$qtApi,$qtUtil,$rowSorter){
 	// some constant
 	var events = {
 		rowSelect:'ROW_SELECT',
@@ -79,24 +80,22 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil',function($injector,$
 			// ----------- sort row ---------
 			this.sortRow = function(key){
 				var oldWay = qtvm.sortMap[key];
-				// now clear other keyword sort
+				// now clear other keyword sort, the sortMap is only for ui change
 				qtvm.sortMap = {};
 
-				if( oldWay == 'up' ){
-					qtvm.sortMap[key] = 'down';
-				}else if( oldWay == 'down' ){
+				if( oldWay == 'asc' ){
+					qtvm.sortMap[key] = 'desc';
+				}else if( oldWay == 'desc' ){
 					qtvm.sortMap[key] = null;
 				}else{	
-					// default way is up 
-					qtvm.sortMap[key] = 'up';
+					// default way is asc 
+					qtvm.sortMap[key] = 'asc';
 				}
 
 				if(!qtvm.sortMap[key] ) return;
-
-				$scope.records.sort( function( a,b ){
-					return qtvm.sortMap[key] == 'up'? 
-						a[key] > b[key] : a[key] < b[key] ;
-				});
+				// this did the real sorting
+				var sortFunc = $rowSorter.sort( key, $scope.records , qtvm.sortMap[key] );
+				$scope.records.sort( sortFunc );
 
 			}
 
