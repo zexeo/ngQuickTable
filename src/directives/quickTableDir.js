@@ -108,6 +108,11 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil','$rowSorter',
 		var $compile = $injector.get('$compile');
 		var qtvm = $scope.qtvm;
 
+		qtvm.elements = {
+			container: elm,
+		}
+
+
 		var table,$table;
 		
 		qtvm.render({
@@ -129,7 +134,7 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil','$rowSorter',
 			elm.append($table);
 		}
 		qtvm.compileTable();
-		
+		qtvm.elements.table = $table;
 
 		/**
 		 * ==== auto merge columns into one column according to screen size =====
@@ -208,12 +213,55 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil','$rowSorter',
 
 		},500)
 
+		// --------------------------------- cell edit --------------------
+		/**
+		 * first let's add dubleclick listener
+		 */
+		$table.on('dblclick',tableDbclickHandle)
+		function tableDbclickHandle(e){
+			var target = e.target;
+
+			if( ['LI','TD'].indexOf( target.tagName ) == -1 ) return;
+
+			var rowidx, columnkey,fieldIdx ,targetCell, targetRow;
+			
+			if(target.tagName == 'TD'){
+				columnkey = target.dataset['columnkey'];
+				targetRow = target.parentNode;
+				rowidx = targetRow.dataset['rowidx'];
+				targetCell = target;
+
+			}else{
+
+				fieldIdx = target.dataset['idx'];
+				targetCell = target.parentNode.parentNode
+				columnkey = targetCell.dataset['columnkey'];
+
+				targetRow = target.parentNode.parentNode.parentNode
+				rowidx = targetRow.dataset['rowidx'];
+			}
+
+			// qtvm.table.showCellEdit( targetCell ,rowidx,columnkey,fieldIdx);
+			var editCell = angular.element(
+				'<td>'+qtvm.table.rowEditTpl[columnkey]+'</td>'
+			)
+			
+			targetCell.style.display = 'none';
+
+			angular.element(targetCell).after(editCell);
+
+
+		}
+
 		if($scope.options.autoMergeColumn){
 			window.addEventListener('resize', onWindowResize );			
 		}
 
 		$scope.$on('$destroy',function(){
-			window.removeEventListener('resize', onWindowResize );			
+			window.removeEventListener('resize', onWindowResize );	
+
+			// remove dbclick listener
+			$table.off('dblclick',tableDbclickHandle);
 		});
 	}
 

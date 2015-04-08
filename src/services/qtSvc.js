@@ -116,7 +116,7 @@ ngQT.factory('$qtApi',[function(){
 		
 
 		var tHeadHTML = '<thead><tr class="qt-head-row">',  
-			rowTpl = '<tr ng-repeat="record in records track by record._id" class="qt-row" ng-class="{active:rowSelection[record._id]}">' ,
+			rowTpl = '<tr ng-repeat="record in records track by record._id" data-rowidx={{$index}} class="qt-row" ng-class="{active:rowSelection[record._id]}">' ,
 			rowEditTpl = {};
 
 		for(var colIndex=0; colIndex<this.columnDef.length; colIndex++ ){
@@ -140,10 +140,10 @@ ngQT.factory('$qtApi',[function(){
 			if(colDef.type == 'combined'){
 				if(!Array.isArray(colDef.fields) ) 
 					throw new TypeError('kye:"'+colDef.key+'" type="combined" must have fields property, and it must be array');
-				cellTpl = '<td '+this.getCellAttr(colDef.attr)+'class="qt-combined"><ul>';
+				cellTpl = '<td '+this.getCellAttr(colDef)+'class="qt-combined"><ul>';
 				// cellEditTpl = '<td>'
 				for(var ii=0;ii<colDef.fields.length; ii++ ){
-					cellTpl += '<li>'+colDef.fields[ii].key+': {{record["'+colDef.fields[ii].key+'"]}}</li>';
+					cellTpl += '<li data-idx="'+ii+'">'+colDef.fields[ii].key+': {{record["'+colDef.fields[ii].key+'"]}}</li>';
 				}
 				cellTpl += '</ul></td>';
 
@@ -152,12 +152,12 @@ ngQT.factory('$qtApi',[function(){
 			}else if( colDef.type == 'custom' ){
 				if(!colDef.tpl) 
 					throw new Error('if colDef.type == "custom" then this column def must have "tpl" property');
-				cellTpl = '<td '+this.getCellAttr(colDef.attr)+'class="qt-custom">'+colDef.tpl + '</td>';
+				cellTpl = '<td '+this.getCellAttr(colDef)+'class="qt-custom">'+colDef.tpl + '</td>';
 				// editing is not allowed for this column.
 				rowEditTpl[colDef.key] = null;
 
 			}else if(colDef.type == 'select' || colDef.type == 'boolean'){
-				cellTpl = '<td '+this.getCellAttr(colDef.attr)+'class="qt-select">{{record["'+colDef.key+'"]}}</td>';
+				cellTpl = '<td '+this.getCellAttr(colDef)+'class="qt-select">{{record["'+colDef.key+'"]}}</td>';
 
 				if(!colDef.selectOption || !Array.isArray(colDef.selectOption.choices) )
 					throw new Error('if colDef.type=="slect" or "boolean" then thisl column def must have "selectOption" and "colDef.selectOption.choices" must be array');
@@ -169,11 +169,11 @@ ngQT.factory('$qtApi',[function(){
 				});
 				rowEditTpl[colDef.key] += '</select>';
 			}else if(colDef.type == 'textarea'){
-				cellTpl = '<td '+this.getCellAttr(colDef.attr)+'class="qt-textarea">{{record["'+colDef.key+'"]}}</td>';
+				cellTpl = '<td '+this.getCellAttr(colDef)+'class="qt-textarea">{{record["'+colDef.key+'"]}}</td>';
 				// edit template
 				rowEditTpl[colDef.key] = '<textarea type="text"></textarea>';
 			}else{ //colDef.type == 'input'
-				cellTpl = '<td '+this.getCellAttr(colDef.attr)+'class="qt-input">{{record["'+colDef.key+'"]}}</td>';
+				cellTpl = '<td '+this.getCellAttr(colDef)+'class="qt-input">{{record["'+colDef.key+'"]}}</td>';
 				// edit template
 				rowEditTpl[colDef.key] = '<input type="text" value="">';				
 			}
@@ -181,6 +181,9 @@ ngQT.factory('$qtApi',[function(){
 			rowTpl += cellTpl;
 
 		}
+		// save row edit template for editting feature;
+		this.rowEditTpl = rowEditTpl;
+
 		tHeadHTML += '</tr></thead>';
 		rowTpl += '</tr>';
 
@@ -191,13 +194,16 @@ ngQT.factory('$qtApi',[function(){
 
 		return tpl;
 	}
-	pro.getCellAttr = function( attrObj ){
-		if(!attrObj) return '';
-		var attrs = '';
-		for(var aa in attrObj){
-			if(!attrObj.hasOwnProperty( aa ) ) continue;
-			attrs += ' '+ aa +'="'+attrObj[aa]+'"';
+	pro.getCellAttr = function(colDef){
+		var attrs = 'data-columnkey="'+colDef.key+'"';
+
+		if(!colDef.attr) return attrs;
+
+		for(var aa in colDef.attr){
+			if(!colDef.attr.hasOwnProperty( aa ) ) continue;
+			attrs += ' '+ aa +'="'+colDef.attr[aa]+'"';
 		}
+
 		return attrs;
 	}
 
@@ -317,6 +323,12 @@ ngQT.factory('$qtApi',[function(){
 		if( ['custom','combined','textarea'].indexOf( def.type ) != -1 ) return null;
 		return ' ng-click="qtvm.sortRow(\''+def.key+'\')" class="qt-sort-enabled"';
 	}
+
+	// --==================== cell edit ==============
+	// pro.showCellEdit = function(targetCell, rowIndex , columnKey , fieldIndex ){
+		
+		
+	// }
 
 
 	var idGen = pro.idGen = function(prefix){
