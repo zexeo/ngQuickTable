@@ -147,7 +147,7 @@ ngQT.factory('$qtApi',[function(){
 				}
 				cellTpl += '</ul></td>';
 
-				rowEditTpl[colDef.key] = '还没有想好 怎么写';
+				rowEditTpl[colDef.key] = '<div __model__>还没有想好 怎么写</div>';
 
 			}else if( colDef.type == 'custom' ){
 				if(!colDef.tpl) 
@@ -163,7 +163,7 @@ ngQT.factory('$qtApi',[function(){
 					throw new Error('if colDef.type=="slect" or "boolean" then thisl column def must have "selectOption" and "colDef.selectOption.choices" must be array');
 
 				// edit template
-				rowEditTpl[colDef.key] = '<select>';
+				rowEditTpl[colDef.key] = '<select __model__>';
 				colDef.selectOption.choices.forEach(function(choice,index){
 					rowEditTpl[colDef.key] += '<option value="'+choice+'">'+choice+'</option>';
 				});
@@ -171,11 +171,11 @@ ngQT.factory('$qtApi',[function(){
 			}else if(colDef.type == 'textarea'){
 				cellTpl = '<td '+this.getCellAttr(colDef)+'class="qt-textarea">{{record["'+colDef.key+'"]}}</td>';
 				// edit template
-				rowEditTpl[colDef.key] = '<textarea type="text"></textarea>';
+				rowEditTpl[colDef.key] = '<textarea type="text" __model__></textarea>';
 			}else{ //colDef.type == 'input'
 				cellTpl = '<td '+this.getCellAttr(colDef)+'class="qt-input">{{record["'+colDef.key+'"]}}</td>';
 				// edit template
-				rowEditTpl[colDef.key] = '<input type="text" value="">';				
+				rowEditTpl[colDef.key] = '<input type="text" value="" __model__>';				
 			}
 
 			rowTpl += cellTpl;
@@ -326,8 +326,8 @@ ngQT.factory('$qtApi',[function(){
 
 	// --==================== cell edit ==============
 	// pro.showCellEdit = function(targetCell, rowIndex , columnKey , fieldIndex ){
-		
-		
+
+
 	// }
 
 

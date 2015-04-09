@@ -214,12 +214,17 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil','$rowSorter',
 		},500)
 
 		// --------------------------------- cell edit --------------------
+		
+		qtvm.cellEditMap = {};
 		/**
 		 * first let's add dubleclick listener
 		 */
-		$table.on('dblclick',tableDbclickHandle)
+		$table.on('dblclick',tableDbclickHandle);
+		angular.element(document).on('keypress',cancelEditCellCheck );
+
 		function tableDbclickHandle(e){
 			var target = e.target;
+			cancelEdit();
 
 			if( ['LI','TD'].indexOf( target.tagName ) == -1 ) return;
 
@@ -242,16 +247,40 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil','$rowSorter',
 			}
 
 			// qtvm.table.showCellEdit( targetCell ,rowidx,columnkey,fieldIdx);
+			var editTpl = qtvm.table.rowEditTpl[columnkey];
+			if( !editTpl ) return;
+			editTpl = editTpl.replace('__model__','ng-model="records['+rowidx+'][\''+columnkey+'\']"' );
+
 			var editCell = angular.element(
-				'<td>'+qtvm.table.rowEditTpl[columnkey]+'</td>'
-			)
-			
-			targetCell.style.display = 'none';
+				'<td>'+editTpl+'</td>'
+			);
 
-			angular.element(targetCell).after(editCell);
+			// compile this cell with scope
+			var $editCell = $compile(editCell)($scope);
+			// hide the original cell;
+			targetCell.classList.add('hidden');
 
+			qtvm.cellEditMap = {
+				targetCell: targetCell,
+				editCell: $editCell,
+				isEditing: true,
+			}
 
+			angular.element(targetCell).after( $editCell );
 		}
+		function cancelEditCellCheck(e){
+			if( e.keyCode == 13 && qtvm.cellEditMap.isEditing ){
+				cancelEdit()
+			} 
+		}
+		function cancelEdit(){
+			if(qtvm.cellEditMap.targetCell)
+				qtvm.cellEditMap.targetCell.classList.remove('hidden');
+			if( qtvm.cellEditMap.editCell )
+				qtvm.cellEditMap.editCell.remove();
+			qtvm.cellEditMap = {};
+		}
+
 
 		if($scope.options.autoMergeColumn){
 			window.addEventListener('resize', onWindowResize );			
@@ -262,6 +291,7 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil','$rowSorter',
 
 			// remove dbclick listener
 			$table.off('dblclick',tableDbclickHandle);
+			angular.element(document).off('keypress',cancelEditCellCheck );
 		});
 	}
 
