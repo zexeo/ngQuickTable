@@ -21,7 +21,8 @@ ngQT.factory('$qtApi',[function(){
 		// ----- pre defined data -------
 		this.rows = [];
 		this.records = options.records ||[];
-		this.generateIdMap(this.records); // this.recordIdMap = {'989': {onerecord}, }
+		this.recordIdMap = this.generateIdMap(this.records,'_id'); // this.recordIdMap = {'989': {onerecord}, }
+		this.defKeyMap = this.generateIdMap(this.columnDef,'key');
 
 		// if autoMergeColumn is set to true, do some pre merge
 		if( options.tableDef.autoMergeColumn ){
@@ -70,16 +71,16 @@ ngQT.factory('$qtApi',[function(){
 	/**
 	 * generate id map for all records, so it will be easier to access rows by their id
 	 */
-	pro.generateIdMap = function(records){
-		this.recordIdMap = {};
-		for (var i = records.length - 1; i >= 0; i--) {
-			if(!records[i]._id ) records[i]._id = this.idGen('record');
-			this.recordIdMap[ records[i]._id ] = records[i];
+	pro.generateIdMap = function(array,key){
+		var theMap = {};
+		if(!key) key ='_id';
+
+		for (var ii = array.length - 1; ii >= 0; ii--) {
+			if(!array[ii][key] ) array[ii][key] = this.idGen('record');
+			theMap[ array[ii][key] ] = array[ii];
 		};
 
-		// we updated records id, so we can save it back
-		this.records = records;
-		return this.recordIdMap;
+		return theMap;
 	}
 
 	pro.buildTable = function(){
@@ -140,14 +141,14 @@ ngQT.factory('$qtApi',[function(){
 			if(colDef.type == 'combined'){
 				if(!Array.isArray(colDef.fields) ) 
 					throw new TypeError('kye:"'+colDef.key+'" type="combined" must have fields property, and it must be array');
-				cellTpl = '<td '+this.getCellAttr(colDef)+'class="qt-combined"><ul>';
-				// cellEditTpl = '<td>'
-				for(var ii=0;ii<colDef.fields.length; ii++ ){
-					cellTpl += '<li data-idx="'+ii+'">'+colDef.fields[ii].key+': {{record["'+colDef.fields[ii].key+'"]}}</li>';
-				}
+				
+				var tplObj = this.getCombinedColTpl( colDef );
+				
+				cellTpl = tplObj.cellTpl;
+				
 				cellTpl += '</ul></td>';
 
-				rowEditTpl[colDef.key] = '<div __model__>还没有想好 怎么写</div>';
+				rowEditTpl[colDef.key] = tplObj.editTpl;
 
 			}else if( colDef.type == 'custom' ){
 				if(!colDef.tpl) 
@@ -163,7 +164,7 @@ ngQT.factory('$qtApi',[function(){
 					throw new Error('if colDef.type=="slect" or "boolean" then thisl column def must have "selectOption" and "colDef.selectOption.choices" must be array');
 
 				// edit template
-				rowEditTpl[colDef.key] = '<select __model__>';
+				rowEditTpl[colDef.key] = '<select __model_'+colDef.key+'>';
 				colDef.selectOption.choices.forEach(function(choice,index){
 					rowEditTpl[colDef.key] += '<option value="'+choice+'">'+choice+'</option>';
 				});
@@ -171,11 +172,11 @@ ngQT.factory('$qtApi',[function(){
 			}else if(colDef.type == 'textarea'){
 				cellTpl = '<td '+this.getCellAttr(colDef)+'class="qt-textarea">{{record["'+colDef.key+'"]}}</td>';
 				// edit template
-				rowEditTpl[colDef.key] = '<textarea type="text" __model__></textarea>';
+				rowEditTpl[colDef.key] = '<textarea type="text" __model_'+colDef.key+'></textarea>';
 			}else{ //colDef.type == 'input'
 				cellTpl = '<td '+this.getCellAttr(colDef)+'class="qt-input">{{record["'+colDef.key+'"]}}</td>';
 				// edit template
-				rowEditTpl[colDef.key] = '<input type="text" value="" __model__>';				
+				rowEditTpl[colDef.key] = '<input type="text" value="" __model_'+colDef.key+'>';				
 			}
 
 			rowTpl += cellTpl;
@@ -206,6 +207,33 @@ ngQT.factory('$qtApi',[function(){
 
 		return attrs;
 	}
+
+	pro.getCombinedColTpl = function(colDef){
+		var cellTpl = '<td '+this.getCellAttr(colDef)+'class="qt-combined"><ul>';
+		var editTpl = '';
+
+		for(var ii=0;ii<colDef.fields.length; ii++ ){
+			var field = colDef.fields[ii]
+			cellTpl += '<li data-idx="'+ii+'">'+field.key+': {{record["'+field.key+'"]}}</li>';
+			
+			if(field.type == 'select'||field.type == 'boolean'){
+				editTpl += '<select __model_'+field.key+'__>';
+				field.selectOption.choices.forEach(function(opt,index){
+					editTpl =+ '<option value="'+opt+'">'+opt+'</option>';
+				});
+			}else if(field.type == 'textarea'){
+				editTpl += '<textarea __model_'+field.key+'></textarea>';
+			}else{
+				editTpl += '<input type="text" __model_'+field.key+'/>';
+			}
+		}
+		
+		return {
+			cellTpl: cellTpl,
+			editTpl: editTpl,
+		}
+	}
+
 
 	pro.addRowSelectionColumn = function(def){
 		if(!def) def = {};

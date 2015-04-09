@@ -250,7 +250,17 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil','$rowSorter',
 			// qtvm.table.showCellEdit( targetCell ,rowidx,columnkey,fieldIdx);
 			var editTpl = qtvm.table.rowEditTpl[columnkey];
 			if( !editTpl ) return;
-			editTpl = editTpl.replace('__model__','ng-model="records['+rowidx+'][\''+columnkey+'\']"' );
+
+			var colDef = qtvm.table.defKeyMap[columnkey];
+			if( colDef.type=='combined' ){
+				colDef.fields.forEach(function(field,index){
+					editTpl = editTpl.replace('__model_'+field.key, 'ng-model="records['+rowidx+'][\''+field.key+'\']"' );
+				})
+
+			}else{
+				editTpl = editTpl.replace('__model_'+columnkey,'ng-model="records['+rowidx+'][\''+columnkey+'\']"' );				
+			}
+			
 
 			var editCell = angular.element(
 				'<td>'+editTpl+'</td>'

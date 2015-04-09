@@ -230,4 +230,9 @@ table {
     }
   }
 }
-
+// ====================== cell editting =-======
+.qt-table td{
+  input{
+    display: block;
+  }
+}
