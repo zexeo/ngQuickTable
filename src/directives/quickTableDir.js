@@ -6,6 +6,7 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil','$rowSorter',
 		rowUnselect: 'ROW_UNSELECT',
 		rowSelectAll: 'ROW_SELECT_ALL',
 		rowClear: 'ROW_CLEAR',
+		cellEdit: 'CELL_EDIT',
 	}
 
 	var directiveObj = {
@@ -264,6 +265,9 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil','$rowSorter',
 				targetCell: targetCell,
 				editCell: $editCell,
 				isEditing: true,
+				columnkey:columnkey,
+				rowidx:rowidx,
+				fieldIdx: fieldIdx,
 			}
 
 			angular.element(targetCell).after( $editCell );
@@ -274,10 +278,17 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil','$rowSorter',
 			} 
 		}
 		function cancelEdit(){
-			if(qtvm.cellEditMap.targetCell)
+			if(qtvm.cellEditMap.isEditing ){
+				// now let's emit some event
+				$scope.$emit( events.cellEdit, {
+					columnkey: qtvm.cellEditMap.columnkey,
+					row: $scope.records[ qtvm.cellEditMap.rowidx ],
+				} )
+
 				qtvm.cellEditMap.targetCell.classList.remove('hidden');
-			if( qtvm.cellEditMap.editCell )
 				qtvm.cellEditMap.editCell.remove();
+			}
+
 			qtvm.cellEditMap = {};
 		}
 

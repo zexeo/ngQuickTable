@@ -46,4 +46,9 @@ app.controller('quickTableCtrl',['$scope','TABLEDATA',function($scope,TABLEDATA)
         
     }
 
+    $scope.$on('CELL_EDIT',function(e,data){
+        console.log('cell been edit, new values are: ');
+        console.log(data);
+    })
+
 }])
