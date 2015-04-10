@@ -374,8 +374,28 @@ ngQT.factory('$qtApi',['$tableExporter',function($tableExporter){
 	 * @return {string} this is the CSV download <a> link
 	 */
 	pro.exportCsv = function(){
+		var colDef = [], combinedFileds = [] ;
 
-		var link = $tableExporter.generateLink( this.columnDef , this.records  )
+		for(var ii=0; ii< this.columnDef.length; ii++ ){
+			var def = this.columnDef[ii];
+			if(def.type == "combined" ){
+				// let's flaten it
+				def.fields.forEach(function(field,index){
+					combinedFileds.push( field );
+					colDef.push( field );
+				});
+			}else if( ['input','textarea','boolean','select']
+					.indexOf( def.type ) != -1 )
+			{
+				colDef.push( def );
+			}
+		}
+
+		colDef.sort(function(a,b){
+			return a.order-b.order;
+		});
+
+		var link = $tableExporter.generateLink( colDef , this.records  )
 			.replace('LINK_LABEL', this.exportOptions.csvExportLinkLable );
 		return link;
 	}

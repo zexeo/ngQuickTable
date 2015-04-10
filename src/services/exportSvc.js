@@ -8,20 +8,19 @@ ngQT.factory('$tableExporter',function(){
 
   csvExporter.formatAsCsv = function (header, exportData, separator) {
     var self = this;
-
     separator = separator || ',';
 
     var bareHeaders = header.map(function(col){return col.key;});
     
     var csv = self.formatRowAsCsv(this, separator)(bareHeaders) + '\n';
 
-    csv += exportData.map(this.formatRowAsCsv(this, separator)).join('\n');
+    csv += exportData.map(this.formatRowAsCsv(this, separator, header) ).join('\n');
     // console.log('-------the csv string is--------')
     // console.log(csv);
     return csv;
   };
 
-  csvExporter.formatRowAsCsv = function (exporter, separator) {
+  csvExporter.formatRowAsCsv = function (exporter, separator, columnDef ) {
     return function (row) {
       if( Array.isArray(row) )
         return row.map(exporter.formatFieldAsCsv).join(separator);
@@ -29,17 +28,20 @@ ngQT.factory('$tableExporter',function(){
       if( typeof row != 'object' ) return '';
 
       var rowOfValue = [];
-      for(var key in row ){
-        if( !row.hasOwnProperty(key) ) continue;
-        rowOfValue.push( exporter.formatFieldAsCsv( row[key] ) );
-      }
+      // the order is not guaranteed for object 
+      if(!columnDef) throw new Error('if you want to parse a row which is array of object, you need to pass in the columnDef so we can decide the order of each field');
+
+      columnDef.forEach(function(col,index){
+        rowOfValue.push( csvExporter.formatFieldAsCsv( row[ col.key ] ) );
+      });
+
       return rowOfValue;
     };
   };
 
   csvExporter.formatFieldAsCsv = function (field) {
     if (field == null) { // we want to catch anything null-ish, hence just == not ===
-      return '';
+      return '" "';
     }
     if (typeof(field) === 'number') {
       return field;
@@ -56,6 +58,7 @@ ngQT.factory('$tableExporter',function(){
 
   csvExporter.generateLink = function( colDef, records, separator ){
     var csvString = this.formatAsCsv( colDef, records, separator )
+    console.log(csvString);
     return this.link.replace('CSV_CONTENT',encodeURIComponent(csvString) );
   }
 
