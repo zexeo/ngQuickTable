@@ -1,4 +1,4 @@
-ngQT.factory('$qtApi',[function(){
+ngQT.factory('$qtApi',['$tableExporter',function($tableExporter){
 	var _id = 0;
 
 	function Qtable(options){
@@ -18,11 +18,22 @@ ngQT.factory('$qtApi',[function(){
 		this.bordered = options.tableDef.bordered ;
 		this.enableHover = options.tableDef.enableHover  ;
 
+
+		// ---------------- feature specific settings
+		this.exportOptions = {
+			csvExportLinkLable: options.csvExportLinkLable || '下载CSV',
+			csvFileName: options.csvFileName || '导出的表格',
+		}
+
+
 		// ----- pre defined data -------
 		this.rows = [];
 		this.records = options.records ||[];
 		this.recordIdMap = this.generateIdMap(this.records,'_id'); // this.recordIdMap = {'989': {onerecord}, }
 		this.defKeyMap = this.generateIdMap(this.columnDef,'key');
+
+
+
 
 		// if autoMergeColumn is set to true, do some pre merge
 		if( options.tableDef.autoMergeColumn ){
@@ -357,6 +368,17 @@ ngQT.factory('$qtApi',[function(){
 
 
 	// }
+	// ---------------------- csv export -------------
+	/**
+	 * exportCsv , before export, remove all custom column and flatten all combined Columns
+	 * @return {string} this is the CSV download <a> link
+	 */
+	pro.exportCsv = function(){
+
+		var link = $tableExporter.generateLink( this.columnDef , this.records  )
+			.replace('LINK_LABEL', this.exportOptions.csvExportLinkLable );
+		return link;
+	}
 
 
 	var idGen = pro.idGen = function(prefix){

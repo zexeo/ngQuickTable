@@ -2,11 +2,13 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil','$rowSorter',
 	function($injector,$qtApi,$qtUtil,$rowSorter){
 	// some constant
 	var events = {
+		initialRender:'INITIAL_RENDER',
 		rowSelect:'ROW_SELECT',
 		rowUnselect: 'ROW_UNSELECT',
 		rowSelectAll: 'ROW_SELECT_ALL',
 		rowClear: 'ROW_CLEAR',
 		cellEdit: 'CELL_EDIT',
+
 	}
 
 	var directiveObj = {
@@ -122,6 +124,9 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil','$rowSorter',
 			columnDef:  $scope.columnDef,
 			records: $scope.records,
 			container: elm[0],
+		},function( tableInstance ){
+			// qtvm.table
+			$scope.$emit( events.initialRender, qtvm );
 		});
 
 		qtvm.table.selectAllRow = $scope.selectAllRow;

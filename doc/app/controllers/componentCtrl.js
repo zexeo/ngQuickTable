@@ -29,7 +29,7 @@ app.controller('componentCtrl', ['$scope', '$routeParams', '$location',
     }
 ]);
 
-app.controller('quickTableCtrl',['$scope','TABLEDATA',function($scope,TABLEDATA){
+app.controller('quickTableCtrl',['$scope','TABLEDATA','$qtApi',function($scope,TABLEDATA,$qtApi){
     var ctrl = this;
     this.tableData = TABLEDATA.parsed;
     this.options = {
@@ -45,10 +45,22 @@ app.controller('quickTableCtrl',['$scope','TABLEDATA',function($scope,TABLEDATA)
 
         
     }
+    // grab all availieble api from table directive's $scope
+    $scope.$on('INITIAL_RENDER',function(e,$table){
+        ctrl.$table = $table;
+    });
 
     $scope.$on('CELL_EDIT',function(e,data){
         console.log('cell been edit, new values are: ');
         console.log(data);
     })
+
+    $scope.exportCsv = function(){
+        var link = ctrl.$table.table.exportCsv();
+        var $linkHolder = angular.element( document.getElementById('csv-link') );
+        $linkHolder.append( link );
+    }
+
+
 
 }])
