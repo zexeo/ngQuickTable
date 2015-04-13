@@ -1,0 +1,259 @@
+// @import 'reset.scss';
+@import '_color_palette.scss';
+@import '_mixins.scss';
+@import '_layout.scss';
+@import 'icons.scss';
+
+$line-height-base:        1.428571429 !default; // 20/14
+$line-height-computed:    floor(14px * $line-height-base) !default; // ~20px
+
+
+$table-cell-padding:                 8px !default;
+$table-condensed-cell-padding:       5px !default;
+$table-bg:                           transparent !default; // overall background-color
+$table-bg-accent:                    #f9f9f9 !default; // for striping
+$table-bg-hover:                     #f5f5f5 !default;
+$table-bg-active:                    map-get($color-grey,'200') !default;
+$table-border-color:                 #ddd !default; // table and cell border
+// -------------
+$screen-xs:                  480px !default;
+$screen-sm:                  768px !default;
+$screen-md:                  992px !default;
+$screen-lg:                  1200px !default;
+$screen-xs-max:              ($screen-sm - 1) !default;
+$screen-sm-max:              ($screen-md - 1) !default;
+$screen-md-max:              ($screen-lg - 1) !default;
+
+// -----------------------------------------------
+.hidden{
+  display:none;
+}
+.qt-table{
+	width: 100%;
+	margin-bottom: 0.2em;
+	th {
+	  text-align: left;
+    white-space: nowrap;
+
+	}
+
+	// Cells
+	> thead,
+	> tbody,
+	> tfoot {
+	  > tr {
+	    > th,
+	    > td {
+	      padding: $table-cell-padding;
+	      line-height: $line-height-base;
+	      // vertical-align: top;
+	      border-top: 1px solid $table-border-color;
+	      transition: background-color 0.3s ease;
+	    }
+	    &.active>th, &.active>td, td.active,th.active{
+			background-color: $table-bg-active;
+	    }
+	  }
+	}
+
+	// Bottom align for column headings
+	> thead > tr > th {
+	  vertical-align: bottom;
+	  border-bottom: 2px solid $table-border-color;
+	}
+	// Remove top border from thead by default
+	> caption + thead,
+	> colgroup + thead,
+	> thead:first-child {
+	  > tr:first-child {
+	    > th,
+	    > td {
+	      border-top: 0;
+	    }
+	  }
+	}
+	// Account for multiple tbody instances
+	> tbody + tbody {
+	  border-top: 2px solid $table-border-color;
+	}
+
+}
+
+.qt-bordered {
+  border: 1px solid $table-border-color;
+  > thead,
+  > tbody,
+  > tfoot {
+    > tr {
+      > th,
+      > td {
+        border: 1px solid $table-border-color;
+      }
+    }
+  }
+  > thead > tr {
+    > th,
+    > td {
+      border-bottom-width: 2px;
+    }
+  }
+}
+
+.qt-striped {
+  > tbody > tr:nth-child(odd) {
+    > td,
+    > th {
+      background-color: $table-bg-accent;
+    }
+  }
+}
+
+.qt-hover {
+  > tbody > tr:hover {
+    > td,
+    > th {
+      background-color: $table-bg-hover;
+    }
+  }
+}
+
+// Table cell sizing
+//
+// Reset default table behavior
+
+table col[class*="col-"] {
+  float: none;
+  display: table-column;
+}
+table {
+  td,
+  th {
+    &[class*="col-"] {
+      float: none;
+      display: table-cell;
+    }
+  }
+}
+
+@media (max-width: $screen-xs-max) {
+  .table-responsive {
+    width: 100%;
+    margin-bottom: ($line-height-computed * 0.75);
+    overflow-y: hidden;
+    overflow-x: scroll;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    border: 1px solid $table-border-color;
+    -webkit-overflow-scrolling: touch;
+
+    // Tighten up spacing
+    > .table {
+      margin-bottom: 0;
+
+      // Ensure the content doesn't wrap
+      > thead,
+      > tbody,
+      > tfoot {
+        > tr {
+          > th,
+          > td {
+            white-space: nowrap;
+          }
+        }
+      }
+    }
+
+    // Special overrides for the bordered tables
+    > .table-bordered {
+      border: 0;
+
+      // Nuke the appropriate borders so that the parent can handle them
+      > thead,
+      > tbody,
+      > tfoot {
+        > tr {
+          > th:first-child,
+          > td:first-child {
+            border-left: 0;
+          }
+          > th:last-child,
+          > td:last-child {
+            border-right: 0;
+          }
+        }
+      }
+
+      // Only nuke the last row's bottom-border in `tbody` and `tfoot` since
+      // chances are there will be only one `tr` in a `thead` and that would
+      // remove the border altogether.
+      > tbody,
+      > tfoot {
+        > tr:last-child {
+          > th,
+          > td {
+            border-bottom: 0;
+          }
+        }
+      }
+
+    }
+  }
+}
+
+// ----------------- different features -----------
+.qt-table{
+  .qt-sort-enabled{
+    cursor: pointer;
+  }
+  .qt-sort-arrow{
+    display:inline-block;
+    margin-left: 3px;
+    margin-bottom: -5px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    &.up , &.down{
+      font-family: 'icomoon';
+      speak: none;
+      font-style: normal;
+      font-weight: normal;
+      font-variant: normal;
+      text-transform: none;
+      line-height: 1;
+
+      /* Better Font Rendering =========== */
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    &.up:before{
+      content: "\ea3e";
+    }
+    &.down:before{
+      content: "\ea3a";
+    }
+  }
+}
+// ====================== cell editting =-======
+.qt-table td{
+  input{
+    display: block;
+  }
+}
+// ========================  filter  ==================
+.qt-table .qt-row-filter{
+  height:30px;
+  // overflow:hidden;
+  input{
+    width: 100%;
+    border-radius: 3px;
+    // border: none;
+    // background-color: #eee;
+    border:solid 1px #bbb;
+    padding: 4px;
+  }
+  .qt-clear-filter{
+    margin-left: -20px;
+    cursor: pointer;
+    color: #999;
+  }
+}
+
