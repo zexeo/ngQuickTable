@@ -1,8 +1,0 @@
-{
-  "name": "ngQuickTable",
-  "version": "0.0.1",
-  "dependencies": {
-    "angular": "1.3.6",
-    "angular-route": "1.3.6",
-  }
-}
