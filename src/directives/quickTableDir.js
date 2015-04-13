@@ -218,8 +218,15 @@ ngQT.directive('quickTable',['$injector','$qtApi','$qtUtil','$rowSorter',
 			qtvm.mergeColumnRerender(  qtvm.ifMergeNeeded( $scope.columnDef ) )
 
 		},500)
+		// ================================ row filter ==================
+		qtvm.rowFilter = {};
+		qtvm.showFilter = $scope.options.showFilter;
+		qtvm.clearFilter = function(key){
+			delete qtvm.rowFilter[ key ];
+		}
 
-		// --------------------------------- cell edit --------------------
+
+		// --------------------------------- cell edit ---------------------------------
 		
 		qtvm.cellEditMap = {};
 		/**

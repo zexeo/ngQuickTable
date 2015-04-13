@@ -35,7 +35,7 @@ app.controller('quickTableCtrl',['$scope','TABLEDATA','$qtApi',function($scope,T
     this.options = {
         striped:false,
         enableHover:true,
-        bordered:false,
+        bordered:true,
 
         rowSelection:true,
         autoMergeColumn: true,
@@ -43,8 +43,14 @@ app.controller('quickTableCtrl',['$scope','TABLEDATA','$qtApi',function($scope,T
 
         columnSelection:false,
 
+        showFilter:true,
         
     }
+
+    this.toggleFilter = function(){
+        ctrl.$table.showFilter = !ctrl.$table.showFilter;
+    },
+
     // grab all availieble api from table directive's $scope
     $scope.$on('INITIAL_RENDER',function(e,$table){
         ctrl.$table = $table;

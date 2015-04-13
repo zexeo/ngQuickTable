@@ -128,7 +128,7 @@ ngQT.factory('$qtApi',['$tableExporter',function($tableExporter){
 		
 
 		var tHeadHTML = '<thead><tr class="qt-head-row">',  
-			rowTpl = '<tr ng-repeat="record in records track by record._id" data-rowidx={{$index}} class="qt-row" ng-class="{active:rowSelection[record._id]}">' ,
+			rowTpl = '<tr ng-repeat="record in records | filter:qtvm.rowFilter track by record._id" data-rowidx={{$index}} class="qt-row" ng-class="{active:rowSelection[record._id]}">' ,
 			rowEditTpl = {};
 
 		for(var colIndex=0; colIndex<this.columnDef.length; colIndex++ ){
@@ -136,15 +136,23 @@ ngQT.factory('$qtApi',['$tableExporter',function($tableExporter){
 			var cellTpl= '';
 
 			// build up table header
-			var theader = colDef.headerTpl ? colDef.headerTpl : colDef.key;
-
 			var theaderWidth = 'width="'+(colDef.width ? colDef.width : '')+'px"';
 			var enableSort = this.enableSort ? this.getSortStringForTpl(colDef) : null;
+			var theader = colDef.headerTpl ? colDef.headerTpl : ('<div '+ (enableSort?enableSort:'')+'>'+colDef.key);
+			theader += (!enableSort?'':'<span class="qt-sort-arrow" ng-class="{up: qtvm.sortMap[\''+colDef.key+'\']==\'asc\', down: qtvm.sortMap[\''+colDef.key+'\']==\'desc\' }"><span>');
+			theader += '</div>';
 
-			tHeadHTML += '<th '+theaderWidth + (enableSort?enableSort:'') +'>'+
-				 theader +
-				 (!enableSort?'':'<span class="qt-sort-arrow" ng-class="{up: qtvm.sortMap[\''+colDef.key+'\']==\'asc\', down: qtvm.sortMap[\''+colDef.key+'\']==\'desc\' }"><span>') +
-			'</th>';
+			tHeadHTML += '<th '+theaderWidth +'>'+theader;
+			// the row filter
+			if(['combined','custom'].indexOf(colDef.type) < 0){
+				tHeadHTML+=  '<div ng-if="qtvm.showFilter" class="qt-row-filter clearfix"> \
+					<input ng-model="qtvm.rowFilter[\''+colDef.key+'\']" ng-model-options="{ updateOn: \'default blur\', debounce: {\'default\': 500, \'blur\': 0} }" type="text"> \
+					<span class="qt-clear-filter" ng-click="qtvm.clearFilter(\''+colDef.key+'\')" ng-show="qtvm.rowFilter[\''+colDef.key+'\']">✕</span></div>';
+			}else{
+				tHeadHTML += '<div ng-if="qtvm.showFilter" class="qt-row-filter clearfix"></div>';
+			}
+
+			tHeadHTML+='</th>';
 
 			/**
 			 * determin which cell template should it be;
@@ -360,7 +368,7 @@ ngQT.factory('$qtApi',['$tableExporter',function($tableExporter){
 	 */
 	pro.getSortStringForTpl = function(def){
 		if( ['custom','combined','textarea'].indexOf( def.type ) != -1 ) return null;
-		return ' ng-click="qtvm.sortRow(\''+def.key+'\')" class="qt-sort-enabled"';
+		return ' ng-click="qtvm.sortRow(\''+def.key+'\')" class="qt-sort-enabled qt-col-key"';
 	}
 
 	// --==================== cell edit ==============

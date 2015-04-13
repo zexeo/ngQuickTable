@@ -50,8 +50,6 @@ app.controller('navCtrl',['$scope','$location',function($scope,$location){
 
 	this.components = [
 		'quickTable',
-		'tableResize',
-		'tableEdit',
 	];
 
 	this.services = [

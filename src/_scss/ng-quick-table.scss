@@ -34,7 +34,9 @@ $screen-md-max:              ($screen-lg - 1) !default;
 	th {
 	  text-align: left;
     white-space: nowrap;
+
 	}
+
 	// Cells
 	> thead,
 	> tbody,
@@ -199,7 +201,7 @@ table {
 
 // ----------------- different features -----------
 .qt-table{
-  th.qt-sort-enabled{
+  .qt-sort-enabled{
     cursor: pointer;
   }
   .qt-sort-arrow{
@@ -236,3 +238,22 @@ table {
     display: block;
   }
 }
+// ========================  filter  ==================
+.qt-table .qt-row-filter{
+  height:30px;
+  // overflow:hidden;
+  input{
+    width: 100%;
+    border-radius: 3px;
+    // border: none;
+    // background-color: #eee;
+    border:solid 1px #bbb;
+    padding: 4px;
+  }
+  .qt-clear-filter{
+    margin-left: -20px;
+    cursor: pointer;
+    color: #999;
+  }
+}
+
