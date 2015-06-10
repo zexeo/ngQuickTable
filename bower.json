@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/eisneim/ngQuickTable.git"
+    "url": "git://github.com/zexeo/ngQuickTable.git"
   },
+  "description": "responsive table component for angular app",
   "main": [
     "build/ng-quick-table.js",
     "build/ng-quick-table.css"

@@ -43,7 +43,7 @@ gulp.task('sass-doc', function() {
     .pipe(livereload()).on( "error", handleError);
 });
 gulp.task('sass-build', function() {
-  gulp.src('./src/_scss/ng-quick-table.scss')
+  gulp.src('src/_scss/ng-quick-table.scss')
     .pipe(sass())
     .pipe(autoprefix('last 2 versions'))
     .pipe(minifyCSS())

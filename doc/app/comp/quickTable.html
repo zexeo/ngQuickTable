@@ -21,6 +21,9 @@
 <quick-table column-def="tableData.def" records="tableData.records" options="options"></quick-table>
 
 //javascript
+var app = angular.module('ngQuickTable-doc',['ngQuickTable']);
+
+// in your controller:
 $scope.options = {
     striped:false,
     enableHover:true,
