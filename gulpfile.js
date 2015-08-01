@@ -1,6 +1,7 @@
 var gulp = require('gulp'),
     gutil = require('gulp-util'),
     livereload = require('gulp-livereload'),
+    rename = require("gulp-rename"),
     watch = require('gulp-watch');
 
 
@@ -56,13 +57,32 @@ gulp.task('sass-watch',function() {
 
 // ---------------------------------------------------- js
 gulp.task('js-build', function() {
-  gulp.src(paths.js)
+  gulp.src(paths.js,{base: process.cwd()})
     .pipe(ngAnnotate() )
     .pipe(concat('ng-quick-table.js'))
     .pipe( uglify({
           compress:true,
-          mangle:false,
+          mangle:true,
         }) ) 
+    // .pipe(rename(function (path) {
+    //   console.log(path);
+    //   console.log(path.toString() );
+    //    // path = path.replace(".js",".min.js");
+    // }))
+    .pipe(rename({
+      // dirname: "main/text/ciao",
+      // basename: "aloha",
+      // prefix: "bonjour-",
+      suffix: ".min",
+      extname: ".js"
+    }))
+    .pipe(gulp.dest('./build/'))
+});
+
+gulp.task('js-dev', function() {
+  gulp.src(paths.js)
+    .pipe(ngAnnotate() )
+    .pipe(concat('ng-quick-table.js'))
     .pipe(gulp.dest('./build/'))
 });
 
@@ -119,7 +139,7 @@ gulp.task('watch', function() {
 // ---------------------------------------- production -------------
 gulp.task('default', ['watch']);
 
-gulp.task('build', ['tplCache','sass-build','js-build']); // 'join-modules',
+gulp.task('build', ['tplCache','sass-build','js-build','js-dev']); // 'join-modules',
 
 
 

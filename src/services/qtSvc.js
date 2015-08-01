@@ -258,7 +258,7 @@ ngQT.factory('$qtApi',['$tableExporter',function($tableExporter){
 		if(!def) def = {};
 		var rowdef = {
 			key:'rowSelect',
-			order: 0,
+			order: -3,
 			type: "custom",
 			width: def.width || 50,
 			headerTpl: def.headerTpl || '<div><input type="checkbox" ng-model="allRowSelected"/></div>',
